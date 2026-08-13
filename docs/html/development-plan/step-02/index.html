@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>2단계 - 포토샵형 화면 레이아웃 구현</title>
+  <style>
+    body { margin: 0; background: #f6f7f9; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.65; }
+    main { width: min(1040px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    a { color: #14835f; } header { margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid #d9dee7; }
+    h1, h2 { margin: 0; line-height: 1.25; letter-spacing: 0; } h1 { font-size: 36px; } h2 { margin-top: 34px; padding-top: 26px; border-top: 1px solid #d9dee7; font-size: 24px; }
+    p, ul, ol { margin-top: 10px; } ul, ol { padding-left: 22px; } li + li { margin-top: 6px; }
+    table { width: 100%; margin-top: 12px; border-collapse: collapse; background: #fff; border: 1px solid #d9dee7; border-radius: 8px; overflow: hidden; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid #d9dee7; text-align: left; vertical-align: top; } th { width: 24%; background: #f0f3f8; } tr:last-child th, tr:last-child td { border-bottom: 0; }
+    .summary { margin-top: 14px; padding: 16px 18px; border: 1px solid #b9ddcd; border-left: 4px solid #14835f; border-radius: 8px; background: #e7f6ef; }
+    .badge { display: inline-flex; padding: 3px 9px; border: 1px solid #d2d8e3; border-radius: 999px; background: #eef2f7; color: #596579; font-size: 13px; font-weight: 800; }
+    @media (max-width: 720px) { main { width: min(100% - 24px, 1040px); padding-top: 28px; } h1 { font-size: 28px; } table, tbody, tr, th, td { display: block; width: 100%; } th { border-bottom: 0; } }
+  </style>
+</head>
+<body><main>
+  <header><p><a href="../index.html">개발 계획서로 돌아가기</a></p><h1>2단계. 포토샵형 화면 레이아웃 구현</h1><p class="summary"><span class="badge">완료</span> 포토샵처럼 도구와 패널이 고정된 작업형 화면을 만들었다.</p></header>
+  <section><h2>목표</h2><p>사용자가 첫 진입부터 중앙 캔버스, 좌측 도구, 우측 속성/목록 패널을 직관적으로 이해하게 한다.</p></section>
+  <section><h2>구현 방향</h2><table>
+    <tr><th>상단 메뉴</th><td>새 파일, 열기, 저장, 다운로드, 실행 취소, 다시 실행, 확대/축소 버튼을 배치한다.</td></tr>
+    <tr><th>좌측 도구 바</th><td>선택, 이동, 펜, 브러시, 지우개, 채우기, 텍스트, 이미지 삽입 도구를 세로로 둔다.</td></tr>
+    <tr><th>중앙 작업 영역</th><td>회색 작업 배경 위에 흰색 캔버스를 두고 스크롤과 확대/축소를 고려한다.</td></tr>
+    <tr><th>우측 패널</th><td>속성, 업로드 이미지, 저장 목록, 캔버스 정보를 탭 또는 접이식 섹션으로 구성한다.</td></tr>
+    <tr><th>하단 상태 바</th><td>현재 도구, 저장 상태, 확대 비율, 캔버스 크기를 표시한다.</td></tr>
+  </table></section>
+  <section><h2>주요 작업</h2><ol><li>CSS Grid와 Flexbox로 전체 앱 프레임을 만들었다.</li><li>도구 버튼은 안정적인 크기의 아이콘 버튼 형태로 배치했다.</li><li>우측 패널에 속성, 업로드, 저장 목록, 캔버스 정보 탭을 만들었다.</li><li>모바일에서는 도구 바를 상단 전환형으로, 우측 패널을 하단 영역으로 내려 겹침을 줄였다.</li></ol></section>
+  <section><h2>완료 기준</h2><ul><li>포토샵형 작업 구조가 화면에 명확히 보인다.</li><li>중앙 캔버스 영역이 가장 큰 비중을 차지한다.</li><li>주요 버튼과 패널이 작은 화면에서 겹치지 않는다.</li></ul></section>
+</main></body></html>

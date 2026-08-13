@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebDrawingCanvas 기획서 - 사용자 및 시나리오</title>
+  <style>
+    body { margin: 0; background: #f6f7f9; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.65; }
+    main { width: min(1040px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    a { color: #1769e0; }
+    header { margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid #d9dee7; }
+    h1, h2, h3 { margin: 0; line-height: 1.25; letter-spacing: 0; }
+    h1 { font-size: 36px; }
+    h2 { margin-top: 36px; padding-top: 28px; border-top: 1px solid #d9dee7; font-size: 24px; }
+    h3 { margin-top: 24px; font-size: 18px; }
+    p, ul, ol { margin-top: 10px; }
+    ul, ol { padding-left: 22px; }
+    li + li { margin-top: 6px; }
+    table { width: 100%; margin-top: 12px; border-collapse: collapse; background: #ffffff; border: 1px solid #d9dee7; border-radius: 8px; overflow: hidden; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid #d9dee7; text-align: left; vertical-align: top; }
+    th { width: 24%; background: #f0f3f8; }
+    tr:last-child th, tr:last-child td { border-bottom: 0; }
+    .summary { margin-top: 14px; padding: 16px 18px; border: 1px solid #b9d7ff; border-left: 4px solid #1769e0; border-radius: 8px; background: #e8f1ff; }
+    @media (max-width: 720px) { main { width: min(100% - 24px, 1040px); padding-top: 28px; } h1 { font-size: 28px; } table, tbody, tr, th, td { display: block; width: 100%; } th { border-bottom: 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p><a href="../index.html">기획서 목차로 돌아가기</a></p>
+      <h1>사용자 및 시나리오</h1>
+      <p class="summary">정식 서비스는 회원가입한 모든 유저를 대상으로 하지만, MVP에서는 로그인 없이 사용할 수 있는 공개형 드로잉 흐름으로 시작한다.</p>
+    </header>
+
+    <section>
+      <h2>1. 대상 사용자</h2>
+      <table>
+        <tr>
+          <th>정식 서비스</th>
+          <td>회원가입한 모든 유저. 개인 작업물 저장, 업로드 이미지 관리, 공유 기능을 계정 기반으로 사용할 수 있는 사용자를 대상으로 한다.</td>
+        </tr>
+        <tr>
+          <th>MVP 사용자</th>
+          <td>로그인 없이 웹페이지에 접속해 바로 그림을 그리고, 이미지를 업로드해 확인하고, 작업물을 로컬에 저장하려는 사용자.</td>
+        </tr>
+        <tr>
+          <th>주요 니즈</th>
+          <td>빠르게 그리기, 이미지 위에 표시하기, 간단한 편집, 작업 저장, 저장한 그림 다시 보기.</td>
+        </tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>2. 대표 사용 시나리오</h2>
+      <ol>
+        <li>사용자가 WebDrawingCanvas에 접속한다.</li>
+        <li>로그인 절차 없이 포토샵형 작업 화면으로 진입한다.</li>
+        <li>새 캔버스에서 펜, 브러시, 지우개를 사용해 그림을 그린다.</li>
+        <li>필요하면 로컬 이미지를 업로드하고 업로드 목록에서 이미지를 확인한다.</li>
+        <li>업로드 이미지를 캔버스에 배치하거나 참고 이미지로 보면서 그림을 수정한다.</li>
+        <li>작업물을 브라우저에 저장하고 저장 목록에서 다시 확인한다.</li>
+        <li>완성된 결과를 PNG 파일로 다운로드한다.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>3. 정식 서비스 확장 시나리오</h2>
+      <ul>
+        <li>회원가입 후 여러 기기에서 저장된 작업을 불러온다.</li>
+        <li>업로드한 그림과 저장한 작업물을 계정별 라이브러리에서 관리한다.</li>
+        <li>작업물을 링크로 공유하거나 읽기 전용으로 공개한다.</li>
+        <li>다른 사용자가 공유받은 그림을 확인하거나 복사본으로 편집한다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

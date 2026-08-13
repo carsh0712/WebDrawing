@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebDrawingCanvas 개발 계획서</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --paper: #ffffff;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #d9dee7;
+      --accent: #14835f;
+      --accent-soft: #e7f6ef;
+      --blue: #1769e0;
+      --blue-soft: #e8f1ff;
+      --warn: #8a6400;
+      --warn-soft: #fff7df;
+      --done: #0f7a4f;
+      --done-soft: #e4f6ee;
+      --wait: #596579;
+      --wait-soft: #eef2f7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    header {
+      margin-bottom: 28px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: 36px;
+      line-height: 1.2;
+    }
+
+    h2 {
+      margin-top: 36px;
+      padding-top: 28px;
+      border-top: 1px solid var(--line);
+      font-size: 24px;
+    }
+
+    h3 {
+      margin-top: 0;
+      font-size: 19px;
+      line-height: 1.3;
+    }
+
+    p,
+    ul,
+    ol {
+      margin-top: 10px;
+    }
+
+    ul,
+    ol {
+      padding-left: 22px;
+    }
+
+    li + li {
+      margin-top: 6px;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 12px;
+      border-collapse: collapse;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      width: 24%;
+      background: #f0f3f8;
+    }
+
+    tr:last-child th,
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    code {
+      padding: 2px 5px;
+      background: #eef1f5;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.94em;
+    }
+
+    .summary,
+    .note {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border: 1px solid #b9ddcd;
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      background: var(--accent-soft);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      min-height: 26px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge.done {
+      border-color: #a9dbc5;
+      background: var(--done-soft);
+      color: var(--done);
+    }
+
+    .badge.ready {
+      border-color: #b9d7ff;
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .badge.pending {
+      border-color: #ead48b;
+      background: var(--warn-soft);
+      color: var(--warn);
+    }
+
+    .badge.waiting {
+      border-color: #d2d8e3;
+      background: var(--wait-soft);
+      color: var(--wait);
+    }
+
+    .status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .step-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .step-card {
+      display: block;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      color: inherit;
+      text-decoration: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+
+    .step-card:hover,
+    .step-card:focus-visible {
+      transform: translateY(-2px);
+      border-color: #b9ddcd;
+      box-shadow: 0 14px 32px rgba(31, 41, 55, 0.1);
+      outline: none;
+    }
+
+    .step-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .step-no {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .step-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .meta-box {
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+
+    .meta-title {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .meta-box p {
+      margin-top: 5px;
+      color: var(--ink);
+    }
+
+    @media (max-width: 720px) {
+      main {
+        width: min(100% - 24px, 1120px);
+        padding-top: 28px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      .step-head,
+      .step-meta {
+        display: block;
+      }
+
+      .step-head .badge,
+      .meta-box + .meta-box {
+        margin-top: 10px;
+      }
+
+      table,
+      tbody,
+      tr,
+      th,
+      td {
+        display: block;
+        width: 100%;
+      }
+
+      th {
+        border-bottom: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p><a href="../index.html">문서 홈으로 돌아가기</a></p>
+      <h1>WebDrawingCanvas 개발 계획서</h1>
+      <p class="summary">
+        이 문서는 WebDrawingCanvas MVP를 단계별로 개발하기 위한 실행 계획서다. 먼저 React + Vite + TypeScript로
+        프론트엔드 드로잉 MVP를 완성하고, 이후 Next.js 백엔드를 개발해 Supabase DB와 Vercel 배포 환경을 연결한다.
+      </p>
+      <div class="status-row">
+        <span class="badge done">기획 작성 완료</span>
+        <span class="badge ready">개발 계획 작성 완료</span>
+        <span class="badge pending">프론트엔드 MVP 진행 중</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>1. 개발 계획 기준</h2>
+      <table>
+        <tr>
+          <th>기획 기준</th>
+          <td>정식 서비스는 회원가입 유저 대상이지만, MVP는 로그인 없이 사용할 수 있는 웹 드로잉 앱으로 개발한다.</td>
+        </tr>
+        <tr>
+          <th>프론트엔드 기준</th>
+          <td>React + Vite + TypeScript로 먼저 개발한다. 캔버스, 드로잉 도구, 업로드 보기, 로컬 저장, PNG 다운로드까지 프론트엔드 MVP로 완성한다.</td>
+        </tr>
+        <tr>
+          <th>백엔드 기준</th>
+          <td>프론트엔드 MVP 이후 Next.js 프레임워크로 백엔드를 개발한다. 인증, 서버 저장, Supabase 연동, 공유 링크 API를 담당한다.</td>
+        </tr>
+        <tr>
+          <th>화면 기준</th>
+          <td>포토샵처럼 상단 메뉴 바, 좌측 도구 바, 중앙 캔버스, 우측 속성/업로드/저장 패널, 하단 상태 바를 가진다.</td>
+        </tr>
+        <tr>
+          <th>핵심 기능</th>
+          <td>펜, 브러시, 지우개, 색상, 굵기, 투명도, 실행 취소/다시 실행, 이미지 업로드, 업로드 이미지 보기, 로컬 저장, 저장 목록, PNG 다운로드.</td>
+        </tr>
+        <tr>
+          <th>우선순위</th>
+          <td>프론트엔드 MVP 완성, 프론트엔드 검증, Next.js 백엔드 생성, Supabase DB/Storage 연결, Vercel 배포 순서로 진행한다.</td>
+        </tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>2. 10단계 개발 계획</h2>
+      <div class="step-list">
+        <a class="step-card" href="./step-01/index.html">
+          <div class="step-head">
+            <div>
+              <span class="step-no">1단계</span>
+              <h3>React + Vite + TypeScript 프론트엔드 구조 생성</h3>
+            </div>
+            <span class="badge done">완료</span>
+          </div>
+          <p>React + Vite + TypeScript 기반으로 프론트엔드 앱 구조를 만들었다.</p>
+          <div class="step-meta">
+            <div class="meta-box">
+              <span class="meta-title">주요 작업</span>
+              <p>Vite 프로젝트, TypeScript 설정, React 컴포넌트 구조, 스타일 파일, 에셋 폴더, 문서 링크 정리 완료.</p>
+            </div>
+            <div class="meta-box">
+              <span class="meta-title">완료 기준</span>
+              <p>Vite 개발 서버에서 React 앱이 정상 실행되고 기본 레이아웃을 표시할 준비가 되었다.</p>
+            </div>
+          </div>
+        </a>
+
+        <a class="step-card" href="./step-02/index.html">
+          <div class="step-head">
+            <div>
+              <span class="step-no">2단계</span>
+              <h3>포토샵형 화면 레이아웃 구현</h3>
+            </div>
+            <span class="badge done">완료</span>
+          </div>
+          <p>상단 메뉴 바, 좌측 도구 바, 중앙 작업 영역, 우측 패널, 하단 상태 바를 배치했다.</p>
+          <div class="step-meta">
+            <div class="meta-box">
+              <span class="meta-title">주요 작업</span>
+              <p>반응형 레이아웃, 고정 도구 바, 우측 탭 패널, 중앙 캔버스 래퍼, 상태 표시 영역 구현 완료.</p>
+            </div>
+            <div class="meta-box">
+              <span class="meta-title">완료 기준</span>
+              <p>사용자가 첫 화면에서 캔버스와 주요 도구 위치를 바로 인지할 수 있다.</p>
+            </div>
+          </div>
+        </a>
+
+        <a class="step-card" href="./step-03/index.html">
+          <div class="step-head">
+            <div>
+              <span class="step-no">3단계</span>
+              <h3>캔버스 엔진 및 포인터 입력 구현</h3>
+            </div>
+            <span class="badge done">완료</span>
+          </div>
+          <p>HTML Canvas 기반의 그리기 영역을 만들고 마우스, 펜, 터치 입력을 처리했다.</p>
+          <div class="step-meta">
+            <div class="meta-box">
+              <span class="meta-title">주요 작업</span>
+              <p>캔버스 초기화, 좌표 계산, 포인터 다운/이동/업 이벤트, 화면 배율 보정, 기본 배경 처리 완료.</p>
+            </div>
+            <div class="meta-box">
+              <span class="meta-title">완료 기준</span>
+              <p>사용자가 캔버스 위에 끊김 없이 기본 선을 그릴 수 있다.</p>
+            </div>
+          </div>
+        </a>
+
+        <a class="step-card" href="./step-04/index.html">
+          <div class="step-head">
+            <div>
+              <span class="step-no">4단계</span>
+              <h3>기본 드로잉 도구 구현</h3>
+            </div>
+            <span class="badge done">완료</span>
+          </div>
+          <p>펜, 수묵화 브러시, 지우개, 색상, 굵기, 투명도 조절 기능을 구현했다.</p>
+          <div class="step-meta">
+            <div class="meta-box">
+              <span class="meta-title">주요 작업</span>
+              <p>도구 선택 상태, 수묵화 브러시 옵션, 색상 팔레트, 커스텀 색상, 지우개 모드, 현재 도구 표시 완료.</p>
+            </div>
+            <div class="meta-box">
+              <span class="meta-title">완료 기준</span>
+              <p>좌측 도구와 우측 속성 패널을 통해 기본 드로잉 작업을 수행할 수 있다.</p>
+            </div>
+          </div>
+        </a>
+
+        <a class="step-card" href="./step-05/index.html">
+          <div class="step-head">
+            <div>
+              <span class="step-no">5단계</span>
+              <h3>편집 이력 기능 구현</h3>
+            </div>
+            <span class="badge done">완료</span>
+          </div>
+          <p>실행 취소, 다시 실행, 전체 지우기, 새 캔버스 확인 흐름을 구현했다.</p>
+          <div class="step-meta">
+            <div class="meta-box">
+              <span class="meta-title">주요 작업</span>
+              <p>캔버스 상태 스냅샷, undo/redo 스택, 초기화 확인 모달, 작업 변경 상태 추적 완료.</p>
+            </div>
+            <div class="meta-box">
+              <span class="meta-title">완료 기준</span>
+              <p>사용자의 최근 작업을 안정적으로 되돌리고 다시 적용할 수 있다.</p>
+            </div>
+          </div>
+        </a>
+
+        <a class="step-card" href="./step-06/index.html">
+          <div class="step-head">
+            <div>
+              <span class="step-no">6단계</span>
+              <h3>이미지 업로드 및 업로드 목록 구현</h3>
+            </div>
+            <span class="badge done">완료</span>
+          </div>
+          <p>사용자가 로컬 이미지를 업로드하고 우측 패널에서 업로드된 그림을 볼 수 있게 했다.</p>
+          <div class="step-meta">
+            <div class="meta-box">
+              <span class="meta-title">주요 작업</span>
+              <p>파일 선택, 이미지 타입 검증, 썸네일 생성, 업로드 목록 표시, 선택 이미지 미리보기 완료.</p>
+            </div>
+            <div class="meta-box">
+              <span class="meta-title">완료 기준</span>
+              <p>업로드한 이미지가 목록에 표시되고 선택한 이미지를 확인할 수 있다.</p>
+            </div>
+          </div>
+        </a>
+
+        <a class="step-card" href="./step-07/index.html">
+          <div class="step-head">
+            <div>
+              <span class="step-no">7단계</span>
+              <h3>업로드 이미지 캔버스 배치 구현</h3>
+            </div>
+            <span class="badge done">완료</span>
+          </div>
+          <p>업로드 목록에서 선택한 이미지를 캔버스에 배치하고 그 위에 드로잉할 수 있게 했다.</p>
+          <div class="step-meta">
+            <div class="meta-box">
+              <span class="meta-title">주요 작업</span>
+              <p>이미지 삽입, 위치 지정, 기본 크기 조절, 캔버스 합성, 선택 이미지 배치 상태 반영 완료.</p>
+            </div>
+            <div class="meta-box">
+              <span class="meta-title">완료 기준</span>
+              <p>선택한 업로드 이미지가 캔버스에 보이고 사용자가 그 위에 추가 작업을 할 수 있다.</p>
+            </div>
+          </div>
+        </a>
+
+        <a class="step-card" href="./step-08/index.html">
+          <div class="step-head">
+            <div>
+              <span class="step-no">8단계</span>
+              <h3>프론트엔드 로컬 저장 및 다운로드 완성</h3>
+            </div>
+            <span class="badge done">완료</span>
+          </div>
+          <p>작업물을 브라우저에 저장하고, 저장 목록, 불러오기, 삭제, PNG 다운로드까지 프론트엔드 MVP로 완성했다.</p>
+          <div class="step-meta">
+            <div class="meta-box">
+              <span class="meta-title">주요 작업</span>
+              <p>저장 데이터 구조, 저장 이름, 저장 시각, 썸네일, 저장 목록, 불러오기, 삭제, 덮어쓰기, PNG 다운로드 완료.</p>
+            </div>
+            <div class="meta-box">
+              <span class="meta-title">완료 기준</span>
+              <p>로그인 없이 저장, 불러오기, 삭제, 다운로드가 모두 동작한다.</p>
+            </div>
+          </div>
+        </a>
+
+        <a class="step-card" href="./step-09/index.html">
+          <div class="step-head">
+            <div>
+              <span class="step-no">9단계</span>
+              <h3>프론트엔드 MVP 검증 및 빌드</h3>
+            </div>
+            <span class="badge done">완료</span>
+          </div>
+          <p>React + Vite + TypeScript 프론트엔드 MVP를 검증하고 배포 가능한 빌드 산출물을 만들었다.</p>
+          <div class="step-meta">
+            <div class="meta-box">
+              <span class="meta-title">주요 작업</span>
+              <p>기능 QA, 타입 체크, 빌드 확인, 반응형 확인, 브라우저 테스트, 문서 상태 갱신 완료.</p>
+            </div>
+            <div class="meta-box">
+              <span class="meta-title">완료 기준</span>
+              <p>프론트엔드 MVP가 독립 실행 가능한 상태로 검증된다.</p>
+            </div>
+          </div>
+        </a>
+
+        <a class="step-card" href="./step-10/index.html">
+          <div class="step-head">
+            <div>
+              <span class="step-no">10단계</span>
+              <h3>Next.js 백엔드 및 Supabase 연동 준비</h3>
+            </div>
+            <span class="badge waiting">대기</span>
+          </div>
+          <p>프론트엔드 MVP 이후 Next.js 백엔드 프로젝트를 만들고 Supabase DB/Storage 연동 기반을 준비한다.</p>
+          <div class="step-meta">
+            <div class="meta-box">
+              <span class="meta-title">주요 작업</span>
+              <p>Next.js 앱/API 구조, Supabase 클라이언트, 환경 변수, 인증/저장 API 설계, 프론트엔드 연결 지점 정리.</p>
+            </div>
+            <div class="meta-box">
+              <span class="meta-title">완료 기준</span>
+              <p>백엔드 개발을 시작할 수 있는 API, DB, 배포 계획이 확정된다.</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. 개발 상태 배지 기준</h2>
+      <table>
+        <tr>
+          <th><span class="badge waiting">대기</span></th>
+          <td>아직 구현을 시작하지 않은 단계다.</td>
+        </tr>
+        <tr>
+          <th><span class="badge pending">진행 중</span></th>
+          <td>구현 또는 검증이 진행 중인 단계다.</td>
+        </tr>
+        <tr>
+          <th><span class="badge ready">검토 필요</span></th>
+          <td>기능 구현은 되었지만 사용자 확인이나 QA가 필요한 단계다.</td>
+        </tr>
+        <tr>
+          <th><span class="badge done">완료</span></th>
+          <td>완료 기준을 충족해 다음 단계의 기반으로 사용할 수 있는 단계다.</td>
+        </tr>
+      </table>
+      <div class="note">
+        1단계부터 9단계까지 완료되었고, 이후 단계는 프론트엔드 MVP 범위에 따라 순차적으로 진행한다. 구현이 진행되면 각 단계 카드의 배지를 갱신한다.
+      </div>
+    </section>
+
+    <section>
+      <h2>4. 기타 단계</h2>
+      <div class="step-list">
+        <a class="step-card" href="./extra-vercel-supabase/index.html">
+          <div class="step-head">
+            <div>
+              <span class="step-no">기타 단계</span>
+              <h3>Next.js 백엔드, Vercel 배포 및 Supabase DB 연결</h3>
+            </div>
+            <span class="badge waiting">대기</span>
+          </div>
+          <p>Next.js 백엔드를 Vercel에서 구동하고 Supabase를 이용해 회원, 작업물, 업로드 이미지 데이터를 저장할 수 있게 확장한다.</p>
+          <div class="step-meta">
+            <div class="meta-box">
+              <span class="meta-title">주요 작업</span>
+              <p>Next.js 백엔드 구성, Vercel 프로젝트 구성, Supabase 프로젝트 생성, DB 테이블 설계, 환경 변수 연결, 저장 API 연동.</p>
+            </div>
+            <div class="meta-box">
+              <span class="meta-title">완료 기준</span>
+              <p>배포된 Vercel URL에서 Supabase DB를 통해 작업물과 업로드 이미지 메타데이터를 저장하고 조회할 수 있다.</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section>
+      <h2>5. 기술 검토 항목</h2>
+      <ul>
+        <li>프론트엔드 구현 방식: React + Vite + TypeScript로 MVP를 먼저 개발한다.</li>
+        <li>캔버스 구현 방식: HTML Canvas API를 기본으로 사용한다.</li>
+        <li>백엔드 구현 방식: 프론트엔드 MVP 이후 Next.js 프레임워크로 API, 인증, 서버 저장 기능을 개발한다.</li>
+        <li>저장소: 프론트엔드 MVP는 브라우저 로컬 저장소를 사용하고, 서버 저장 확장 시 Supabase Database와 Storage를 사용한다.</li>
+        <li>이미지 처리: PNG, JPG, JPEG, WebP 업로드와 PNG 다운로드를 우선 지원한다.</li>
+        <li>정식 서비스 확장: 회원가입, 서버 저장, 링크 공유, 권한 관리는 Supabase 연동 단계에서 구체화한다.</li>
+        <li>배포 방식: 프론트엔드 MVP 검증 이후 Vercel을 기본 배포 환경으로 사용하고, 환경 변수로 Supabase 접속 정보를 관리한다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>6. MVP 산출물</h2>
+      <ul>
+        <li>React + Vite + TypeScript 기반 프론트엔드 앱</li>
+        <li>포토샵형 웹 드로잉 앱 화면</li>
+        <li>기본 캔버스 드로잉 기능</li>
+        <li>펜, 브러시, 지우개, 색상, 굵기, 투명도 도구</li>
+        <li>실행 취소, 다시 실행, 새 캔버스, 전체 지우기</li>
+        <li>이미지 업로드 및 업로드 이미지 목록</li>
+        <li>업로드 이미지 캔버스 배치</li>
+        <li>로컬 저장, 저장 목록, 불러오기, 삭제</li>
+        <li>PNG 다운로드</li>
+        <li>프론트엔드 MVP 기능 검증 결과와 개발 상태 갱신</li>
+        <li>Next.js 백엔드 개발 준비 문서</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

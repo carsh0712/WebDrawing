@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebDrawingCanvas 기획서 - 기능 명세</title>
+  <style>
+    body { margin: 0; background: #f6f7f9; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.65; }
+    main { width: min(1040px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    a { color: #1769e0; }
+    header { margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid #d9dee7; }
+    h1, h2, h3 { margin: 0; line-height: 1.25; letter-spacing: 0; }
+    h1 { font-size: 36px; }
+    h2 { margin-top: 36px; padding-top: 28px; border-top: 1px solid #d9dee7; font-size: 24px; }
+    h3 { margin-top: 24px; font-size: 18px; }
+    p, ul { margin-top: 10px; }
+    ul { padding-left: 22px; }
+    li + li { margin-top: 6px; }
+    table { width: 100%; margin-top: 12px; border-collapse: collapse; background: #ffffff; border: 1px solid #d9dee7; border-radius: 8px; overflow: hidden; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid #d9dee7; text-align: left; vertical-align: top; }
+    th { width: 24%; background: #f0f3f8; }
+    tr:last-child th, tr:last-child td { border-bottom: 0; }
+    .summary { margin-top: 14px; padding: 16px 18px; border: 1px solid #b9d7ff; border-left: 4px solid #1769e0; border-radius: 8px; background: #e8f1ff; }
+    @media (max-width: 720px) { main { width: min(100% - 24px, 1040px); padding-top: 28px; } h1 { font-size: 28px; } table, tbody, tr, th, td { display: block; width: 100%; } th { border-bottom: 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p><a href="../index.html">기획서 목차로 돌아가기</a></p>
+      <h1>기능 명세</h1>
+      <p class="summary">MVP에서 웹 드로잉 앱으로 동작하기 위해 필요한 기본 기능을 정리한다.</p>
+    </header>
+
+    <section>
+      <h2>1. 캔버스 기능</h2>
+      <table>
+        <tr><th>새 캔버스</th><td>기본 캔버스를 생성하고 기존 작업이 있을 경우 초기화 확인을 표시한다.</td></tr>
+        <tr><th>캔버스 크기</th><td>MVP는 기본 크기를 제공하고, 이후 사용자 지정 크기를 확장한다.</td></tr>
+        <tr><th>확대/축소</th><td>작업 영역에서 캔버스를 확대하거나 축소해 세부 작업을 확인한다.</td></tr>
+        <tr><th>이동</th><td>확대 상태에서 캔버스 위치를 이동해 원하는 영역을 볼 수 있게 한다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>2. 드로잉 도구</h2>
+      <table>
+        <tr><th>선택 도구</th><td>업로드 이미지 또는 캔버스 요소를 선택하는 기본 도구로 사용한다.</td></tr>
+        <tr><th>펜</th><td>마우스 또는 터치 입력으로 단단하고 선명한 자유 곡선을 그린다.</td></tr>
+        <tr><th>수묵화 브러시</th><td>색상, 굵기, 투명도를 조절해 먹 번짐, 농담, 마른 붓 결이 섞인 선을 그린다.</td></tr>
+        <tr><th>지우개</th><td>그려진 내용을 지우며, 지우개 크기를 조절할 수 있게 한다.</td></tr>
+        <tr><th>채우기</th><td>MVP에서는 단순 배경 채우기 또는 선택 색상 적용 수준으로 검토한다.</td></tr>
+        <tr><th>텍스트</th><td>간단한 설명 문구를 캔버스에 추가할 수 있게 한다.</td></tr>
+        <tr><th>이미지 삽입</th><td>업로드된 이미지를 캔버스에 배치한다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>3. 편집 기능</h2>
+      <ul>
+        <li>실행 취소 및 다시 실행</li>
+        <li>전체 지우기</li>
+        <li>현재 도구 상태 표시</li>
+        <li>색상 팔레트 및 사용자 지정 색상</li>
+        <li>수묵화 브러시 굵기 및 투명도 조절</li>
+        <li>PNG 다운로드</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>4. MVP 제외 범위</h2>
+      <ul>
+        <li>회원가입 및 로그인</li>
+        <li>서버 기반 계정 저장</li>
+        <li>실시간 공동 편집</li>
+        <li>고급 레이어 관리</li>
+        <li>필압, 블렌딩 모드, 다중 브러시 프리셋</li>
+        <li>복잡한 벡터 편집 및 도형 편집</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

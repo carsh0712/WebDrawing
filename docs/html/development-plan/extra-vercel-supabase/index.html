@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기타 단계 - Next.js 백엔드, Vercel 배포 및 Supabase DB 연결</title>
+  <style>
+    body { margin: 0; background: #f6f7f9; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.65; }
+    main { width: min(1040px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    a { color: #14835f; }
+    header { margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid #d9dee7; }
+    h1, h2, h3 { margin: 0; line-height: 1.25; letter-spacing: 0; }
+    h1 { font-size: 36px; }
+    h2 { margin-top: 34px; padding-top: 26px; border-top: 1px solid #d9dee7; font-size: 24px; }
+    h3 { margin-top: 22px; font-size: 18px; }
+    p, ul, ol { margin-top: 10px; }
+    ul, ol { padding-left: 22px; }
+    li + li { margin-top: 6px; }
+    table { width: 100%; margin-top: 12px; border-collapse: collapse; background: #fff; border: 1px solid #d9dee7; border-radius: 8px; overflow: hidden; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid #d9dee7; text-align: left; vertical-align: top; }
+    th { width: 24%; background: #f0f3f8; }
+    tr:last-child th, tr:last-child td { border-bottom: 0; }
+    code { padding: 2px 5px; background: #eef1f5; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.94em; }
+    .summary, .note { margin-top: 14px; padding: 16px 18px; border: 1px solid #b9ddcd; border-left: 4px solid #14835f; border-radius: 8px; background: #e7f6ef; }
+    .badge { display: inline-flex; padding: 3px 9px; border: 1px solid #d2d8e3; border-radius: 999px; background: #eef2f7; color: #596579; font-size: 13px; font-weight: 800; }
+    @media (max-width: 720px) { main { width: min(100% - 24px, 1040px); padding-top: 28px; } h1 { font-size: 28px; } table, tbody, tr, th, td { display: block; width: 100%; } th { border-bottom: 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p><a href="../index.html">개발 계획서로 돌아가기</a></p>
+      <h1>기타 단계. Next.js 백엔드, Vercel 배포 및 Supabase DB 연결</h1>
+      <p class="summary">
+        <span class="badge">대기</span>
+        React + Vite + TypeScript 프론트엔드 MVP 이후 Next.js 백엔드를 개발하고, Vercel 배포와 Supabase DB/Storage를
+        연결해 회원, 작업물, 업로드 이미지, 공유 데이터를 저장할 수 있도록 확장하는 개발 계획이다.
+      </p>
+    </header>
+
+    <section>
+      <h2>1. 목표</h2>
+      <p>
+        프론트엔드 MVP의 로컬 브라우저 저장 구조를 서버 저장 구조로 확장한다. 정식 서비스에서는 회원가입한 모든 유저가
+        자신의 드로잉 작업물과 업로드 이미지를 계정에 연결해 저장하고 다시 불러올 수 있어야 한다.
+      </p>
+      <table>
+        <tr>
+          <th>배포 환경</th>
+          <td>Vercel을 사용해 Next.js 백엔드와 웹 앱 배포 환경을 구성한다.</td>
+        </tr>
+        <tr>
+          <th>백엔드 환경</th>
+          <td>Next.js 프레임워크를 사용해 API 라우트, 인증 연동, 서버 저장 로직을 구현한다.</td>
+        </tr>
+        <tr>
+          <th>DB 환경</th>
+          <td>Supabase Database를 사용해 사용자, 프로젝트, 이미지, 공유 메타데이터를 관리한다.</td>
+        </tr>
+        <tr>
+          <th>파일 저장</th>
+          <td>업로드 이미지와 내보낸 결과물은 Supabase Storage 사용을 검토한다.</td>
+        </tr>
+        <tr>
+          <th>인증</th>
+          <td>MVP 이후 회원가입 기반 서비스로 확장할 때 Supabase Auth 사용을 검토한다.</td>
+        </tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>2. 단계별 진행 계획</h2>
+      <table>
+        <tr>
+          <th>1단계</th>
+          <td>Next.js 백엔드 구조 결정: 프론트엔드 Vite 앱과 별도 프로젝트로 둘지, 통합 배포 구조로 전환할지 결정한다.</td>
+        </tr>
+        <tr>
+          <th>2단계</th>
+          <td>Next.js 프로젝트 생성: API 라우트, 서버 전용 Supabase 클라이언트, 환경 변수 로딩 구조를 준비한다.</td>
+        </tr>
+        <tr>
+          <th>3단계</th>
+          <td>Supabase 프로젝트 생성: 개발용 프로젝트를 만들고 Database, Storage, Auth 사용 범위를 정한다.</td>
+        </tr>
+        <tr>
+          <th>4단계</th>
+          <td>환경 변수 설계: Vercel과 로컬 환경에 <code>SUPABASE_URL</code>, <code>SUPABASE_ANON_KEY</code>, <code>SUPABASE_SERVICE_ROLE_KEY</code>를 분리 등록한다.</td>
+        </tr>
+        <tr>
+          <th>5단계</th>
+          <td>DB 테이블 설계: 회원, 드로잉 프로젝트, 업로드 이미지, 공유 링크 정보를 저장할 테이블을 설계한다.</td>
+        </tr>
+        <tr>
+          <th>6단계</th>
+          <td>Next.js API 구현: 작업물 저장, 작업물 조회, 이미지 업로드, 이미지 조회 API를 만든다.</td>
+        </tr>
+        <tr>
+          <th>7단계</th>
+          <td>프론트엔드 연결: 기존 Vite 프론트엔드의 로컬 저장 서비스를 Next.js API 호출 방식으로 교체할 수 있게 연결한다.</td>
+        </tr>
+        <tr>
+          <th>8단계</th>
+          <td>인증 확장: Supabase Auth를 연결하고 로그인 사용자 기준으로 작업물과 업로드 이미지 목록을 조회한다.</td>
+        </tr>
+        <tr>
+          <th>9단계</th>
+          <td>Vercel 배포 검증: Preview와 Production 환경에서 환경 변수, DB 연결, 이미지 접근 권한을 확인한다.</td>
+        </tr>
+        <tr>
+          <th>10단계</th>
+          <td>보안 및 권한 검증: Row Level Security, Storage 접근 정책, 공개/비공개 공유 정책을 점검한다.</td>
+        </tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>3. 권장 데이터 구조 초안</h2>
+      <h3>3.1 users</h3>
+      <table>
+        <tr><th>id</th><td>Supabase Auth 사용자 ID와 연결되는 기본 키.</td></tr>
+        <tr><th>email</th><td>회원 이메일.</td></tr>
+        <tr><th>display_name</th><td>화면 표시 이름.</td></tr>
+        <tr><th>created_at</th><td>가입 또는 프로필 생성 시각.</td></tr>
+      </table>
+
+      <h3>3.2 drawing_projects</h3>
+      <table>
+        <tr><th>id</th><td>드로잉 작업물 ID.</td></tr>
+        <tr><th>user_id</th><td>작업물 소유자 ID.</td></tr>
+        <tr><th>title</th><td>작업물 이름.</td></tr>
+        <tr><th>canvas_width / canvas_height</th><td>캔버스 크기.</td></tr>
+        <tr><th>project_data</th><td>재편집 가능한 작업 데이터 JSON.</td></tr>
+        <tr><th>thumbnail_url</th><td>목록 표시용 썸네일 URL.</td></tr>
+        <tr><th>created_at / updated_at</th><td>생성 및 수정 시각.</td></tr>
+      </table>
+
+      <h3>3.3 uploaded_images</h3>
+      <table>
+        <tr><th>id</th><td>업로드 이미지 ID.</td></tr>
+        <tr><th>user_id</th><td>업로드한 사용자 ID.</td></tr>
+        <tr><th>project_id</th><td>연결된 드로잉 프로젝트 ID. 독립 업로드를 허용할 경우 비워둘 수 있다.</td></tr>
+        <tr><th>file_url</th><td>Supabase Storage 파일 URL.</td></tr>
+        <tr><th>file_name</th><td>원본 파일명.</td></tr>
+        <tr><th>mime_type</th><td>이미지 MIME 타입.</td></tr>
+        <tr><th>created_at</th><td>업로드 시각.</td></tr>
+      </table>
+
+      <h3>3.4 share_links</h3>
+      <table>
+        <tr><th>id</th><td>공유 링크 ID.</td></tr>
+        <tr><th>project_id</th><td>공유 대상 작업물 ID.</td></tr>
+        <tr><th>permission</th><td>읽기 전용, 복사 가능, 편집 가능 등 권한.</td></tr>
+        <tr><th>token</th><td>외부 공유 URL에 사용할 난수 토큰.</td></tr>
+        <tr><th>expires_at</th><td>만료 시각. MVP 이후 선택 적용.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>4. 환경 변수 계획</h2>
+      <table>
+        <tr>
+          <th><code>SUPABASE_URL</code></th>
+          <td>Supabase 프로젝트 URL. Vercel 환경 변수에 등록한다.</td>
+        </tr>
+        <tr>
+          <th><code>SUPABASE_ANON_KEY</code></th>
+          <td>브라우저 또는 Next.js 클라이언트에서 사용할 공개 anon key. RLS 정책을 전제로 사용한다.</td>
+        </tr>
+        <tr>
+          <th><code>SUPABASE_SERVICE_ROLE_KEY</code></th>
+          <td>서버 전용 키. Next.js API 라우트 같은 서버 코드에서만 사용하고 브라우저에는 절대 노출하지 않는다.</td>
+        </tr>
+        <tr>
+          <th><code>APP_BASE_URL</code></th>
+          <td>공유 링크 생성과 리다이렉트에 사용할 서비스 기본 URL.</td>
+        </tr>
+      </table>
+      <div class="note">
+        클라이언트에 노출되는 키는 반드시 Supabase Row Level Security와 Storage 정책으로 보호한다. 서버 전용 키는 Next.js 백엔드 환경 변수로만 관리한다.
+      </div>
+    </section>
+
+    <section>
+      <h2>5. 저장 흐름</h2>
+      <ol>
+        <li>사용자가 로그인한다.</li>
+        <li>캔버스 작업을 생성하거나 기존 작업을 불러온다.</li>
+        <li>Next.js API가 요청을 검증한다.</li>
+        <li>작업 중 업로드한 이미지는 Next.js API를 통해 Supabase Storage에 저장한다.</li>
+        <li>이미지 URL과 메타데이터는 <code>uploaded_images</code> 테이블에 저장한다.</li>
+        <li>캔버스의 재편집 데이터와 썸네일은 Next.js API를 통해 <code>drawing_projects</code> 테이블에 저장한다.</li>
+        <li>작업 목록은 사용자 ID 기준으로 조회한다.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>6. Vercel 배포 검증 항목</h2>
+      <ul>
+        <li>Production 배포 URL에서 프론트엔드와 Next.js 백엔드가 정상 로드되는지 확인한다.</li>
+        <li>Vercel 환경 변수 값이 배포 환경에 정상 반영되는지 확인한다.</li>
+        <li>Next.js API에서 Supabase 연결 테스트가 성공하는지 확인한다.</li>
+        <li>DB 읽기/쓰기 권한이 의도한 사용자에게만 열려 있는지 확인한다.</li>
+        <li>Storage 업로드, 다운로드, 썸네일 표시가 정상 동작하는지 확인한다.</li>
+        <li>배포 후 브라우저 콘솔에 민감한 키나 오류가 노출되지 않는지 확인한다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>7. 완료 기준</h2>
+      <ul>
+        <li>Vercel 배포 URL에서 WebDrawingCanvas 프론트엔드와 Next.js 백엔드가 정상 실행된다.</li>
+        <li>Next.js API를 통해 Supabase Database에 작업물 메타데이터를 저장하고 조회할 수 있다.</li>
+        <li>Next.js API를 통해 Supabase Storage에 업로드 이미지를 저장하고 다시 볼 수 있다.</li>
+        <li>로그인 사용자 기준으로 자신의 작업 목록과 업로드 이미지 목록만 조회된다.</li>
+        <li>환경 변수와 권한 정책이 문서화되어 있다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

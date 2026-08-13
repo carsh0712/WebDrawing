@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebDrawingCanvas 문서 홈</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --paper: #ffffff;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #d8dee9;
+      --blue: #1769e0;
+      --green: #14835f;
+      --blue-soft: #e8f1ff;
+      --green-soft: #e7f6ef;
+      --shadow: 0 16px 40px rgba(31, 41, 55, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    main {
+      width: min(1040px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 56px 0;
+    }
+
+    header {
+      padding: 32px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 52px);
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin-top: 28px;
+      font-size: 22px;
+    }
+
+    p {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 22px;
+    }
+
+    .badge {
+      padding: 5px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+      margin-top: 28px;
+    }
+
+    .doc-link {
+      display: flex;
+      min-height: 180px;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: inherit;
+      text-decoration: none;
+      background: var(--paper);
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+
+    .doc-link:hover,
+    .doc-link:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+      outline: none;
+    }
+
+    .doc-link.planning {
+      background: var(--blue-soft);
+      border-color: #bcd4ff;
+    }
+
+    .doc-link.development {
+      background: var(--green-soft);
+      border-color: #b9ddcd;
+    }
+
+    .doc-title {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .doc-desc {
+      margin-top: 12px;
+      color: var(--ink);
+      font-size: 16px;
+    }
+
+    .doc-action {
+      margin-top: 24px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 14px;
+      border-collapse: collapse;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      width: 24%;
+      background: #eef2f7;
+    }
+
+    tr:last-child th,
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    @media (max-width: 720px) {
+      main {
+        width: min(100% - 24px, 1040px);
+        padding: 28px 0;
+      }
+
+      header {
+        padding: 24px;
+      }
+
+      .actions {
+        grid-template-columns: 1fr;
+      }
+
+      .doc-link {
+        min-height: 150px;
+      }
+
+      table,
+      tbody,
+      tr,
+      th,
+      td {
+        display: block;
+        width: 100%;
+      }
+
+      th {
+        border-bottom: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>WebDrawingCanvas</h1>
+      <p>
+        웹페이지에서 그림을 그리고, 작업 결과를 저장하고, 다른 사용자와 공유할 수 있는 웹 기반 드로잉 캔버스 시스템이다.
+      </p>
+      <div class="meta">
+        <span class="badge">문서 홈</span>
+        <span class="badge">HTML 문서</span>
+        <span class="badge">최초 작성일: 2026-08-13</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>프로젝트 개요</h2>
+      <table>
+        <tr>
+          <th>프로젝트명</th>
+          <td>WebDrawingCanvas</td>
+        </tr>
+        <tr>
+          <th>목표</th>
+          <td>브라우저에서 바로 그림을 그리고, 저장과 공유까지 이어지는 간단하고 명확한 드로잉 작업 흐름을 제공한다.</td>
+        </tr>
+        <tr>
+          <th>문서 방향</th>
+          <td>기획서는 논의 후 세부 문서로 확장하고, 개발 계획서는 확정된 기획을 바탕으로 단계별 실행 계획을 채운다.</td>
+        </tr>
+      </table>
+    </section>
+
+    <nav class="actions" aria-label="문서 바로가기">
+      <a class="doc-link planning" href="./planning/index.html">
+        <span>
+          <span class="doc-title">기획서</span>
+          <span class="doc-desc">서비스 목적, 사용자, 기능 범위, 화면 흐름, 저장 및 공유 정책을 정리한다.</span>
+        </span>
+        <span class="doc-action">기획서로 이동</span>
+      </a>
+      <a class="doc-link development" href="./development-plan/index.html">
+        <span>
+          <span class="doc-title">개발 계획서</span>
+          <span class="doc-desc">기획서를 바탕으로 구현 단계, 기술 검토 항목, 산출물과 일정의 뼈대를 관리한다.</span>
+        </span>
+        <span class="doc-action">개발 계획서로 이동</span>
+      </a>
+    </nav>
+  </main>
+</body>
+</html>

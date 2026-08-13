@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebDrawingCanvas 기획서 - 저장 및 업로드 이미지</title>
+  <style>
+    body { margin: 0; background: #f6f7f9; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.65; }
+    main { width: min(1040px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    a { color: #1769e0; }
+    header { margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid #d9dee7; }
+    h1, h2, h3 { margin: 0; line-height: 1.25; letter-spacing: 0; }
+    h1 { font-size: 36px; }
+    h2 { margin-top: 36px; padding-top: 28px; border-top: 1px solid #d9dee7; font-size: 24px; }
+    p, ul, ol { margin-top: 10px; }
+    ul, ol { padding-left: 22px; }
+    li + li { margin-top: 6px; }
+    table { width: 100%; margin-top: 12px; border-collapse: collapse; background: #ffffff; border: 1px solid #d9dee7; border-radius: 8px; overflow: hidden; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid #d9dee7; text-align: left; vertical-align: top; }
+    th { width: 24%; background: #f0f3f8; }
+    tr:last-child th, tr:last-child td { border-bottom: 0; }
+    .summary { margin-top: 14px; padding: 16px 18px; border: 1px solid #b9d7ff; border-left: 4px solid #1769e0; border-radius: 8px; background: #e8f1ff; }
+    @media (max-width: 720px) { main { width: min(100% - 24px, 1040px); padding-top: 28px; } h1 { font-size: 28px; } table, tbody, tr, th, td { display: block; width: 100%; } th { border-bottom: 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p><a href="../index.html">기획서 목차로 돌아가기</a></p>
+      <h1>저장 및 업로드 이미지</h1>
+      <p class="summary">MVP에서는 로그인 없이도 현재 브라우저에서 작업물을 저장하고, 업로드한 그림을 목록에서 확인할 수 있게 한다.</p>
+    </header>
+
+    <section>
+      <h2>1. 저장 기능</h2>
+      <table>
+        <tr><th>로컬 저장</th><td>현재 캔버스 상태를 브라우저 저장소에 저장한다.</td></tr>
+        <tr><th>저장 목록</th><td>저장한 작업의 이름, 저장 시각, 썸네일을 우측 패널에 표시한다.</td></tr>
+        <tr><th>불러오기</th><td>저장 목록에서 작업을 선택하면 캔버스에 해당 작업을 복원한다.</td></tr>
+        <tr><th>덮어쓰기</th><td>현재 작업을 같은 이름으로 다시 저장할 수 있게 한다.</td></tr>
+        <tr><th>삭제</th><td>저장된 작업을 목록에서 삭제할 수 있게 한다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>2. 업로드 이미지 보기</h2>
+      <table>
+        <tr><th>이미지 업로드</th><td>사용자가 로컬의 PNG, JPG, JPEG, WebP 이미지를 업로드한다.</td></tr>
+        <tr><th>업로드 목록</th><td>업로드한 이미지를 썸네일 목록으로 보여준다.</td></tr>
+        <tr><th>이미지 미리보기</th><td>목록에서 이미지를 선택하면 우측 패널 또는 작업 영역에서 크게 확인한다.</td></tr>
+        <tr><th>캔버스 배치</th><td>선택한 업로드 이미지를 캔버스에 배치해 그 위에 드로잉할 수 있게 한다.</td></tr>
+        <tr><th>업로드 기록</th><td>MVP에서는 현재 브라우저 기준으로 업로드 이미지 정보를 유지한다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>3. 다운로드 및 공유</h2>
+      <ul>
+        <li>현재 캔버스를 PNG 파일로 다운로드한다.</li>
+        <li>MVP의 공유는 다운로드한 이미지 파일을 외부 채널로 전달하는 방식으로 본다.</li>
+        <li>링크 공유, 공개 범위 설정, 회원별 공유 권한은 정식 서비스 확장 범위로 둔다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>4. 저장 데이터 기준</h2>
+      <ol>
+        <li>작업 이름</li>
+        <li>저장 시각</li>
+        <li>캔버스 크기</li>
+        <li>캔버스 이미지 또는 재편집 가능한 작업 데이터</li>
+        <li>썸네일 이미지</li>
+        <li>사용한 업로드 이미지 참조 정보</li>
+      </ol>
+    </section>
+  </main>
+</body>
+</html>
