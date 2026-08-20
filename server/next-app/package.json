@@ -1,0 +1,29 @@
+{
+  "name": "web-drawing-canvas-api",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -H 127.0.0.1 -p 5174",
+    "build": "next build",
+    "start": "next start",
+    "lint": "tsc --noEmit",
+    "db:dev:up": "docker-compose up -d db",
+    "db:dev:down": "docker-compose down",
+    "db:dev:reset": "docker-compose down -v"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "next": "^15.0.0",
+    "pg": "^8.23.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.8.0"
+  }
+}

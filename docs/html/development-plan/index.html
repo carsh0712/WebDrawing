@@ -295,7 +295,8 @@
       <div class="status-row">
         <span class="badge done">기획 작성 완료</span>
         <span class="badge ready">개발 계획 작성 완료</span>
-        <span class="badge pending">프론트엔드 MVP 진행 중</span>
+        <span class="badge done">프론트엔드 MVP 완료</span>
+        <span class="badge pending">백엔드 확장 진행 중</span>
       </div>
     </header>
 
@@ -525,19 +526,19 @@
           <div class="step-head">
             <div>
               <span class="step-no">10단계</span>
-              <h3>Next.js 백엔드 및 Supabase 연동 준비</h3>
+              <h3>Next.js 백엔드, Supabase, Vercel 확장</h3>
             </div>
-            <span class="badge waiting">대기</span>
+            <span class="badge pending">진행 중</span>
           </div>
-          <p>프론트엔드 MVP 이후 Next.js 백엔드 프로젝트를 만들고 Supabase DB/Storage 연동 기반을 준비한다.</p>
+          <p>기존 기타 단계의 Vercel 배포, Supabase DB/Storage 연결, 인증, 서버 저장 확장을 10단계 세부 계획으로 통합했다.</p>
           <div class="step-meta">
             <div class="meta-box">
               <span class="meta-title">주요 작업</span>
-              <p>Next.js 앱/API 구조, Supabase 클라이언트, 환경 변수, 인증/저장 API 설계, 프론트엔드 연결 지점 정리.</p>
+              <p>완료: 10-1부터 10-11까지. 다음 진행 예정: 10-12부터 10-14까지 인증, Vercel 배포, 보안 검증.</p>
             </div>
             <div class="meta-box">
               <span class="meta-title">완료 기준</span>
-              <p>백엔드 개발을 시작할 수 있는 API, DB, 배포 계획이 확정된다.</p>
+              <p>개발 Docker DB와 운영 Supabase에서 서버 저장, 업로드, 인증, 배포 검증이 모두 동작한다.</p>
             </div>
           </div>
         </a>
@@ -565,38 +566,12 @@
         </tr>
       </table>
       <div class="note">
-        1단계부터 9단계까지 완료되었고, 이후 단계는 프론트엔드 MVP 범위에 따라 순차적으로 진행한다. 구현이 진행되면 각 단계 카드의 배지를 갱신한다.
+        1단계부터 9단계까지 완료되었고, 10단계는 기존 기타 단계를 흡수해 진행 중이다. 세부 계획서에서 완료된 준비 작업과 대기 중인 실제 구현 작업을 구분해 관리한다.
       </div>
     </section>
 
     <section>
-      <h2>4. 기타 단계</h2>
-      <div class="step-list">
-        <a class="step-card" href="./extra-vercel-supabase/index.html">
-          <div class="step-head">
-            <div>
-              <span class="step-no">기타 단계</span>
-              <h3>Next.js 백엔드, Vercel 배포 및 Supabase DB 연결</h3>
-            </div>
-            <span class="badge waiting">대기</span>
-          </div>
-          <p>Next.js 백엔드를 Vercel에서 구동하고 Supabase를 이용해 회원, 작업물, 업로드 이미지 데이터를 저장할 수 있게 확장한다.</p>
-          <div class="step-meta">
-            <div class="meta-box">
-              <span class="meta-title">주요 작업</span>
-              <p>Next.js 백엔드 구성, Vercel 프로젝트 구성, Supabase 프로젝트 생성, DB 테이블 설계, 환경 변수 연결, 저장 API 연동.</p>
-            </div>
-            <div class="meta-box">
-              <span class="meta-title">완료 기준</span>
-              <p>배포된 Vercel URL에서 Supabase DB를 통해 작업물과 업로드 이미지 메타데이터를 저장하고 조회할 수 있다.</p>
-            </div>
-          </div>
-        </a>
-      </div>
-    </section>
-
-    <section>
-      <h2>5. 기술 검토 항목</h2>
+      <h2>4. 기술 검토 항목</h2>
       <ul>
         <li>프론트엔드 구현 방식: React + Vite + TypeScript로 MVP를 먼저 개발한다.</li>
         <li>캔버스 구현 방식: HTML Canvas API를 기본으로 사용한다.</li>
@@ -609,7 +584,7 @@
     </section>
 
     <section>
-      <h2>6. MVP 산출물</h2>
+      <h2>5. MVP 산출물</h2>
       <ul>
         <li>React + Vite + TypeScript 기반 프론트엔드 앱</li>
         <li>포토샵형 웹 드로잉 앱 화면</li>

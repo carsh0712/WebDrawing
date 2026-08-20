@@ -1,24 +1,20 @@
 {
-  "name": "web-drawing-canvas",
+  "name": "web-drawing-canvas-workspace",
   "private": true,
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "lint": "tsc -b --noEmit"
-  },
-  "dependencies": {
-    "lucide-react": "^0.468.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^5.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "typescript": "^5.8.0",
-    "vite": "^7.0.0"
+    "setup": "node scripts/setup.mjs",
+    "dev": "node scripts/dev.mjs",
+    "build": "node scripts/build.mjs",
+    "preview": "npm --prefix client run preview",
+    "lint": "npm --prefix client run lint",
+    "publish:client": "node scripts/publish-client.mjs",
+    "db:dev:up": "npm --prefix server/next-app run db:dev:up",
+    "db:dev:down": "npm --prefix server/next-app run db:dev:down",
+    "db:dev:reset": "npm --prefix server/next-app run db:dev:reset",
+    "server:dev": "npm --prefix server/next-app run dev",
+    "server:build": "npm --prefix server/next-app run build",
+    "server:lint": "npm --prefix server/next-app run lint"
   }
 }

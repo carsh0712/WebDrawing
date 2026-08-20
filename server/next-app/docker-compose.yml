@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: webdrawing-dev-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: webdrawing_dev
+      POSTGRES_USER: webdrawing
+      POSTGRES_PASSWORD: webdrawing_dev_password
+    ports:
+      - "54322:5432"
+    volumes:
+      - webdrawing_dev_db:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U webdrawing -d webdrawing_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  webdrawing_dev_db:

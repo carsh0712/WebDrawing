@@ -4,17 +4,21 @@ node_modules/
 # Build output
 dist/
 build/
+out/
+.next/
+/server/next-app/public/
 
 # TypeScript and tool caches
 *.tsbuildinfo
 .vite/
 .cache/
+.turbo/
 coverage/
 
 # Environment files
-*.local
 .env
 .env.*
+*.local
 !.env.example
 
 # Logs

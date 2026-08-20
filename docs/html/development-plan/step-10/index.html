@@ -1,9 +1,140 @@
 <!doctype html>
-<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>10단계 - Next.js 백엔드 및 Supabase 연동 준비</title><style>
-body{margin:0;background:#f6f7f9;color:#1f2937;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65}main{width:min(1040px,calc(100% - 32px));margin:0 auto;padding:40px 0 56px}a{color:#14835f}header{margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid #d9dee7}h1,h2{margin:0;line-height:1.25;letter-spacing:0}h1{font-size:36px}h2{margin-top:34px;padding-top:26px;border-top:1px solid #d9dee7;font-size:24px}p,ul,ol{margin-top:10px}ul,ol{padding-left:22px}li+li{margin-top:6px}table{width:100%;margin-top:12px;border-collapse:collapse;background:#fff;border:1px solid #d9dee7;border-radius:8px;overflow:hidden}th,td{padding:12px 14px;border-bottom:1px solid #d9dee7;text-align:left;vertical-align:top}th{width:24%;background:#f0f3f8}tr:last-child th,tr:last-child td{border-bottom:0}.summary{margin-top:14px;padding:16px 18px;border:1px solid #b9ddcd;border-left:4px solid #14835f;border-radius:8px;background:#e7f6ef}.badge{display:inline-flex;padding:3px 9px;border:1px solid #d2d8e3;border-radius:999px;background:#eef2f7;color:#596579;font-size:13px;font-weight:800}code{padding:2px 5px;background:#eef1f5;border-radius:4px}@media(max-width:720px){main{width:min(100% - 24px,1040px);padding-top:28px}h1{font-size:28px}table,tbody,tr,th,td{display:block;width:100%}th{border-bottom:0}}</style></head>
-<body><main><header><p><a href="../index.html">개발 계획서로 돌아가기</a></p><h1>10단계. Next.js 백엔드 및 Supabase 연동 준비</h1><p class="summary"><span class="badge">대기</span> 프론트엔드 MVP 이후 Next.js 백엔드 개발을 시작하기 위한 구조와 연결 지점을 정리한다.</p></header>
-<section><h2>목표</h2><p>React + Vite 프론트엔드 MVP를 유지하면서, 서버 기능이 필요한 저장, 인증, 공유, DB 접근 기능을 Next.js 백엔드로 분리할 준비를 한다.</p></section>
-<section><h2>구현 방향</h2><table><tr><th>백엔드 스택</th><td>Next.js 프레임워크를 사용해 API 라우트와 서버 전용 로직을 구현한다.</td></tr><tr><th>DB</th><td>Supabase Database를 사용해 사용자, 작업물, 업로드 이미지, 공유 링크 정보를 저장한다.</td></tr><tr><th>파일</th><td>Supabase Storage를 사용해 업로드 이미지와 썸네일 파일 저장을 검토한다.</td></tr><tr><th>프론트 연결</th><td>기존 프론트엔드의 저장 서비스 인터페이스를 Next.js API 호출로 교체할 수 있게 한다.</td></tr></table></section>
-<section><h2>주요 작업</h2><ol><li>Next.js 백엔드 프로젝트 위치와 실행 방식을 결정한다.</li><li>API 엔드포인트 초안을 정의한다.</li><li>Supabase 환경 변수와 서버 전용 키 사용 정책을 정리한다.</li><li>프론트엔드에서 호출할 저장, 조회, 업로드 API 계약을 작성한다.</li><li>Vercel 배포 구조를 프론트엔드와 백엔드 관점에서 결정한다.</li></ol></section>
-<section><h2>완료 기준</h2><ul><li>Next.js 백엔드 개발 범위가 확정된다.</li><li>프론트엔드 MVP와 백엔드 API의 연결 지점이 명확하다.</li><li>Supabase DB/Storage 설계 초안이 준비된다.</li><li>Vercel 배포 전략을 선택할 수 있다.</li></ul></section>
-</main></body></html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>10단계 - Next.js 백엔드, Supabase, Vercel 확장</title>
+  <style>
+    :root{--bg:#f6f7f9;--paper:#fff;--ink:#1f2937;--muted:#667085;--line:#d9dee7;--accent:#14835f;--accent-soft:#e7f6ef;--blue:#1769e0;--blue-soft:#e8f1ff;--warn:#8a6400;--warn-soft:#fff7df;--done:#0f7a4f;--done-soft:#e4f6ee;--wait:#596579;--wait-soft:#eef2f7}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.65}main{width:min(1080px,calc(100% - 32px));margin:0 auto;padding:40px 0 56px}a{color:var(--accent)}header{margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid var(--line)}h1,h2,h3,p{margin:0;letter-spacing:0}h1{font-size:36px;line-height:1.2}h2{margin-top:34px;padding-top:26px;border-top:1px solid var(--line);font-size:24px}h3{margin-top:22px;font-size:18px}p,ul,ol{margin-top:10px}ul,ol{padding-left:22px}li+li{margin-top:6px}table{width:100%;margin-top:12px;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);border-radius:8px;overflow:hidden}th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{width:24%;background:#f0f3f8}tr:last-child th,tr:last-child td{border-bottom:0}code{padding:2px 5px;background:#eef1f5;border-radius:4px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.94em}.summary,.note{margin-top:14px;padding:16px 18px;border:1px solid #b9ddcd;border-left:4px solid var(--accent);border-radius:8px;background:var(--accent-soft)}.badge{display:inline-flex;width:fit-content;min-height:26px;align-items:center;padding:3px 9px;border:1px solid #d2d8e3;border-radius:999px;background:var(--wait-soft);color:var(--wait);font-size:13px;font-weight:800;white-space:nowrap}.badge.done{border-color:#a9dbc5;background:var(--done-soft);color:var(--done)}.badge.pending{border-color:#ead48b;background:var(--warn-soft);color:var(--warn)}.badge.ready{border-color:#b9d7ff;background:var(--blue-soft);color:var(--blue)}.status-table th:first-child{width:16%}@media(max-width:720px){main{width:min(100% - 24px,1080px);padding-top:28px}h1{font-size:28px}table,tbody,tr,th,td{display:block;width:100%}th{border-bottom:0}}
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p><a href="../index.html">개발 계획서로 돌아가기</a></p>
+      <h1>10단계. Next.js 백엔드, Supabase, Vercel 확장</h1>
+      <p class="summary">
+        <span class="badge pending">진행 중</span>
+        기존 기타 단계의 Vercel 배포, Supabase DB/Storage 연결, 인증, 서버 저장 확장을 10단계 세부 계획으로 통합한다.
+        현재는 프론트엔드 원격 저장 연결까지 완료되었고, 운영 인증/배포와 보안 검증은 대기 중이다.
+      </p>
+    </header>
+
+    <section>
+      <h2>1. 통합 목표</h2>
+      <p>
+        10단계는 프론트엔드 MVP 이후의 전체 백엔드 확장 단계다. React + Vite 클라이언트는 <code>client/</code>에 유지하고,
+        Next.js 백엔드는 <code>server/next-app/</code>에서 독립적으로 개발한다. 개발 환경은 Docker Postgres를 사용하고,
+        운영 환경은 Supabase Database, Supabase Storage, Vercel 배포를 기준으로 확장한다.
+      </p>
+      <table>
+        <tr><th>클라이언트</th><td><code>client/</code>는 Canvas UI, 로컬 저장, PNG 다운로드 등 브라우저 전용 기능을 담당한다.</td></tr>
+        <tr><th>백엔드</th><td><code>server/next-app/</code>는 API 라우트, 서버 저장, 인증 검증, DB/Storage 접근을 담당한다.</td></tr>
+        <tr><th>개발 DB</th><td>Docker Postgres를 사용한다. <code>DATABASE_PROVIDER=docker-postgres</code>와 <code>DATABASE_URL</code>로 연결한다.</td></tr>
+        <tr><th>운영 DB</th><td>Supabase Database를 사용한다. 운영에서는 <code>DATABASE_PROVIDER=supabase</code>와 Supabase 키를 사용한다.</td></tr>
+        <tr><th>파일 저장</th><td>운영 업로드 이미지와 썸네일은 Supabase Storage 사용을 기준으로 설계한다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>2. 세부 진행 현황</h2>
+      <p class="note">
+        작업을 요청할 때는 세부 단계 번호를 기준으로 지칭한다. 예: <code>10-5까지 진행</code>,
+        <code>10-6 저장 API 구현 진행</code>, <code>10-9 프론트엔드 연결까지 진행</code>.
+      </p>
+      <table class="status-table">
+        <tr><th>상태</th><th>세부 항목</th><th>내용</th></tr>
+        <tr><td><span class="badge done">완료</span></td><td>10-1. 구조 분리</td><td><code>client/</code>, <code>server/next-app/</code>, <code>docs/backend/</code> 경계를 확정하고 브라우저 코드와 서버 코드가 섞이지 않게 했다.</td></tr>
+        <tr><td><span class="badge done">완료</span></td><td>10-2. 루트 실행 위임</td><td>루트 <code>package.json</code>에서 클라이언트와 서버 명령을 위임하되, 의존성 설치는 각 앱 폴더에서 별도로 진행하도록 정리했다.</td></tr>
+        <tr><td><span class="badge done">완료</span></td><td>10-3. 백엔드 기본 프로젝트</td><td>Next.js API placeholder, 환경 변수 예시, 서버 전용 Supabase 클라이언트 위치를 준비했다.</td></tr>
+        <tr><td><span class="badge done">완료</span></td><td>10-4. API 계약 확정</td><td><code>docs/backend/api-contract.md</code>에 프론트엔드가 호출할 저장, 조회, 업로드 API 요청/응답 초안을 작성했다.</td></tr>
+        <tr><td><span class="badge done">완료</span></td><td>10-5. 환경별 DB 전략</td><td><code>docs/backend/environment-strategy.md</code>에 개발 Docker DB와 운영 Supabase DB 사용 기준을 정리했다.</td></tr>
+        <tr><td><span class="badge done">완료</span></td><td>10-6. 개발 Docker DB</td><td><code>server/next-app/docker-compose.yml</code>과 초기 스키마를 추가하고, Docker Postgres 컨테이너 기동과 테이블 생성을 확인했다.</td></tr>
+        <tr><td><span class="badge done">완료</span></td><td>10-7. DB/RLS 스키마 초안</td><td><code>profiles</code>, <code>drawing_projects</code>, <code>uploaded_images</code>, <code>share_links</code> 테이블과 RLS 정책 초안을 작성했다.</td></tr>
+        <tr><td><span class="badge done">완료</span></td><td>10-8. DB 접근 계층 구현</td><td><code>DATABASE_PROVIDER</code>에 따라 Docker Postgres 또는 Supabase로 연결하는 저장소 계층을 구현했다. 개발 환경은 기본 Docker Postgres 연결 문자열을 사용한다.</td></tr>
+        <tr><td><span class="badge done">완료</span></td><td>10-9. 작업물 API 실제 구현</td><td>작업 목록 조회, 단일 작업 조회, 저장, 덮어쓰기, 삭제 API를 실제 DB 읽기/쓰기 로직으로 연결했다.</td></tr>
+        <tr><td><span class="badge done">완료</span></td><td>10-10. 업로드 API 실제 구현</td><td>개발 환경에서 업로드 이미지 메타데이터를 DB에 저장하도록 구현했다. 운영 Supabase Storage 실제 파일 저장은 10-12 이후 인증/권한과 함께 확장한다.</td></tr>
+        <tr><td><span class="badge done">완료</span></td><td>10-11. 프론트엔드 원격 저장 연결</td><td><code>client/src/services/remoteCanvasStorageService.ts</code>를 추가하고, 저장 패널에서 브라우저 저장과 서버 저장을 선택할 수 있게 했다.</td></tr>
+        <tr><td><span class="badge">대기</span></td><td>10-12. Supabase Auth 연결</td><td>로그인 사용자 기준으로 자신의 작업물과 업로드 이미지만 조회되도록 인증 세션 검증과 RLS 정책을 연결한다.</td></tr>
+        <tr><td><span class="badge">대기</span></td><td>10-13. Vercel 배포 검증</td><td>Preview와 Production 환경에서 환경 변수, API 동작, Supabase 연결, Storage 접근 권한을 확인한다.</td></tr>
+        <tr><td><span class="badge">대기</span></td><td>10-14. 보안 및 권한 검증</td><td>서비스 롤 키 노출 여부, RLS, Storage 정책, 공유 링크 권한, 공개/비공개 접근 정책을 점검한다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>3. 단계 묶음 기준</h2>
+      <table>
+        <tr><th>10-1 ~ 10-7</th><td><span class="badge done">완료</span> 구조, 문서, 개발 DB, 스키마 준비 단계다.</td></tr>
+        <tr><th>10-8 ~ 10-10</th><td><span class="badge done">완료</span> 서버 저장소 계층과 핵심 API 실제 구현 단계다.</td></tr>
+        <tr><th>10-11</th><td><span class="badge done">완료</span> 프론트엔드가 원격 저장 API를 선택적으로 호출하게 만드는 연결 단계다.</td></tr>
+        <tr><th>10-12 ~ 10-14</th><td><span class="badge pending">진행 예정</span> 운영 인증, Vercel 배포, 보안/권한 검증 단계다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>4. 데이터 구조 초안</h2>
+      <h3>4.1 profiles</h3>
+      <table>
+        <tr><th>id</th><td>Supabase Auth 사용자 ID와 연결되는 기본 키.</td></tr>
+        <tr><th>email</th><td>회원 이메일.</td></tr>
+        <tr><th>display_name</th><td>화면 표시 이름.</td></tr>
+        <tr><th>created_at / updated_at</th><td>프로필 생성 및 수정 시각.</td></tr>
+      </table>
+      <h3>4.2 drawing_projects</h3>
+      <table>
+        <tr><th>id</th><td>드로잉 작업물 ID.</td></tr>
+        <tr><th>user_id</th><td>작업물 소유자 ID.</td></tr>
+        <tr><th>title</th><td>작업물 이름.</td></tr>
+        <tr><th>canvas_width / canvas_height</th><td>캔버스 크기.</td></tr>
+        <tr><th>project_data</th><td>재편집 가능한 작업 데이터 JSON.</td></tr>
+        <tr><th>image_path / thumbnail_path</th><td>Storage 파일 경로.</td></tr>
+        <tr><th>created_at / updated_at</th><td>생성 및 수정 시각.</td></tr>
+      </table>
+      <h3>4.3 uploaded_images</h3>
+      <table>
+        <tr><th>id</th><td>업로드 이미지 ID.</td></tr>
+        <tr><th>user_id</th><td>업로드한 사용자 ID.</td></tr>
+        <tr><th>project_id</th><td>연결된 드로잉 프로젝트 ID. 독립 업로드를 허용할 경우 비워둘 수 있다.</td></tr>
+        <tr><th>storage_path</th><td>Supabase Storage 파일 경로.</td></tr>
+        <tr><th>file_name / mime_type / byte_size</th><td>원본 파일 메타데이터.</td></tr>
+        <tr><th>created_at</th><td>업로드 시각.</td></tr>
+      </table>
+      <h3>4.4 share_links</h3>
+      <table>
+        <tr><th>id</th><td>공유 링크 ID.</td></tr>
+        <tr><th>project_id</th><td>공유 대상 작업물 ID.</td></tr>
+        <tr><th>permission</th><td>읽기 전용, 복사 가능, 편집 가능 등 권한.</td></tr>
+        <tr><th>token</th><td>외부 공유 URL에 사용할 난수 토큰.</td></tr>
+        <tr><th>expires_at</th><td>만료 시각. MVP 이후 선택 적용.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>5. 환경 변수 계획</h2>
+      <table>
+        <tr><th><code>APP_ENV</code></th><td><code>development</code>, <code>production</code>, <code>test</code> 중 하나를 사용한다.</td></tr>
+        <tr><th><code>DATABASE_PROVIDER</code></th><td>개발은 <code>docker-postgres</code>, 운영은 <code>supabase</code>를 사용한다.</td></tr>
+        <tr><th><code>DATABASE_URL</code></th><td>개발 Docker Postgres 접속 문자열. 운영 Supabase 연결에는 사용하지 않는다.</td></tr>
+        <tr><th><code>NEXT_PUBLIC_SUPABASE_URL</code></th><td>Supabase 프로젝트 URL. 공개 가능한 값이지만 서버 전용 로직은 Next.js API에서만 사용한다.</td></tr>
+        <tr><th><code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code></th><td>브라우저 또는 Next.js 클라이언트에서 사용할 공개 anon key. RLS 정책을 전제로 사용한다.</td></tr>
+        <tr><th><code>SUPABASE_SERVICE_ROLE_KEY</code></th><td>서버 전용 키. Next.js API 라우트 같은 서버 코드에서만 사용하고 브라우저에는 절대 노출하지 않는다.</td></tr>
+        <tr><th><code>APP_BASE_URL</code></th><td>공유 링크 생성과 리다이렉트에 사용할 서비스 기본 URL.</td></tr>
+      </table>
+      <div class="note">클라이언트에 노출되는 Supabase 키는 반드시 Row Level Security와 Storage 정책으로 보호한다. 서버 전용 키는 Next.js 백엔드 환경 변수로만 관리한다.</div>
+    </section>
+
+    <section>
+      <h2>6. 완료 기준</h2>
+      <ul>
+        <li>개발 환경에서 Docker Postgres를 사용해 작업물 저장, 조회, 수정, 삭제 API가 동작한다.</li>
+        <li>운영 환경에서 Supabase Database에 작업물 메타데이터를 저장하고 조회할 수 있다.</li>
+        <li>운영 환경에서 Supabase Storage에 업로드 이미지와 썸네일을 저장하고 다시 볼 수 있다.</li>
+        <li>로그인 사용자 기준으로 자신의 작업 목록과 업로드 이미지 목록만 조회된다.</li>
+        <li>Vercel Preview와 Production 환경에서 환경 변수, DB 연결, Storage 접근 권한이 검증된다.</li>
+        <li>클라이언트와 서버 코드 경계가 유지되고, 서버 전용 키가 브라우저 번들에 노출되지 않는다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
