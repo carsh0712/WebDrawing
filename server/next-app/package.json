@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "next dev -H 127.0.0.1 -p 5174",
-    "build": "next build",
+    "build": "node scripts/build-with-client.mjs",
+    "build:next": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
     "db:dev:up": "docker-compose up -d db",

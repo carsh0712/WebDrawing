@@ -33,6 +33,26 @@ npm run db:dev:up
 npm run dev
 ```
 
+## Vercel 배포 빌드
+
+Vercel 프로젝트는 저장소 루트가 아니라 이 폴더를 기준으로 잡는다.
+
+```text
+Root Directory: server/next-app
+Framework Preset: Next.js
+Build Command: npm run build
+Output Directory: 비워둠
+```
+
+이 폴더의 `npm run build`는 다음 순서로 동작한다.
+
+1. `../../client` 의존성을 `npm ci`로 설치한다.
+2. Vite 클라이언트를 빌드해 `client/dist`를 만든다.
+3. `client/dist`를 `server/next-app/public`으로 복사한다.
+4. `next build`를 실행한다.
+
+따라서 Vercel의 Output Directory를 `public`으로 직접 지정하지 않는다. `public`은 Next.js가 정적 파일을 읽는 입력 폴더이고, Vercel 배포 산출물 폴더가 아니다.
+
 ## 환경 변수
 
 `.env.example`을 기준으로 `.env.local`을 만든다. `SUPABASE_SERVICE_ROLE_KEY`는 서버 전용이며 프론트엔드 `client/` 또는 Vite 환경 변수에 넣지 않는다.

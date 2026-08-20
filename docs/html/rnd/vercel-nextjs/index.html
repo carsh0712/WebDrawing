@@ -59,8 +59,9 @@
         <tr><th>Next.js 앱 위치</th><td><code>server/next-app/</code></td></tr>
         <tr><th>Vercel Root Directory</th><td><code>server/next-app</code>로 설정한다. 이 값을 틀리면 루트의 다른 <code>package.json</code>을 기준으로 빌드될 수 있다.</td></tr>
         <tr><th>Framework Preset</th><td><code>Next.js</code>. Vercel이 자동 감지하지 못하면 수동으로 선택한다.</td></tr>
-        <tr><th>Build Command</th><td>기본은 <code>npm run build</code> 또는 <code>next build</code>다. 현재 Next.js 앱의 <code>package.json</code> 기준으로 실행된다.</td></tr>
+        <tr><th>Build Command</th><td><code>npm run build</code>. 이 명령은 <code>../../client</code>를 먼저 빌드해 <code>server/next-app/public</code>으로 복사한 뒤 Next.js를 빌드한다.</td></tr>
         <tr><th>Install Command</th><td>기본 <code>npm install</code> 또는 lockfile 기준 설치를 사용한다.</td></tr>
+        <tr><th>Output Directory</th><td><strong>비워둔다.</strong> Next.js 배포에서는 Vercel이 산출물을 관리한다. <code>public</code>은 정적 파일 입력 폴더이지 배포 출력 폴더가 아니다.</td></tr>
       </table>
     </section>
 
@@ -71,9 +72,10 @@
         <div><strong>2단계.</strong> Vercel Dashboard에서 New Project를 만들고 해당 Git 저장소를 선택한다.</div>
         <div><strong>3단계.</strong> Project Settings에서 Root Directory를 <code>server/next-app</code>로 지정한다.</div>
         <div><strong>4단계.</strong> Framework Preset이 <code>Next.js</code>인지 확인한다.</div>
-        <div><strong>5단계.</strong> Preview와 Production 환경 변수를 등록한다.</div>
-        <div><strong>6단계.</strong> 첫 Deploy를 실행하고 <code>/api/health</code>로 서버가 살아 있는지 확인한다.</div>
-        <div><strong>7단계.</strong> 이후 PR 또는 브랜치 push는 Preview 배포, production branch merge는 Production 배포로 검증한다.</div>
+        <div><strong>5단계.</strong> Output Directory가 비어 있는지 확인한다. <code>public</code>을 입력하면 빌드 후 출력 폴더를 찾지 못하는 오류가 날 수 있다.</div>
+        <div><strong>6단계.</strong> Preview와 Production 환경 변수를 등록한다.</div>
+        <div><strong>7단계.</strong> 첫 Deploy를 실행하고 <code>/api/health</code>로 서버가 살아 있는지 확인한다.</div>
+        <div><strong>8단계.</strong> 이후 PR 또는 브랜치 push는 Preview 배포, production branch merge는 Production 배포로 검증한다.</div>
       </div>
       <div class="note">
         Vercel 공식 문서 기준으로 Git 연결은 브랜치 push마다 Preview 배포를 만들고, production branch에는 Production 배포를 만든다.
@@ -144,6 +146,7 @@ vercel deploy --prod</code></pre>
       <h2>8. 흔한 실패 원인</h2>
       <table>
         <tr><th>Root Directory 오류</th><td>Vercel이 <code>server/next-app</code>가 아닌 저장소 루트를 빌드하면 Next.js 앱을 찾지 못하거나 다른 명령이 실행된다.</td></tr>
+        <tr><th>Output Directory 오류</th><td>Next.js 프로젝트에서 Output Directory를 <code>public</code>으로 지정하면 안 된다. <code>public</code>은 빌드 결과물이 아니라 정적 파일 입력 폴더다.</td></tr>
         <tr><th>환경 변수 누락</th><td>Preview에는 값이 있는데 Production에는 없는 식으로 환경별 등록이 빠질 수 있다.</td></tr>
         <tr><th>service role 노출</th><td>비밀 키에 <code>NEXT_PUBLIC_</code>를 붙이거나 클라이언트 코드에서 import하면 보안 사고가 된다.</td></tr>
         <tr><th>Supabase RLS 차단</th><td>RLS 정책이 너무 엄격하면 API가 빈 목록이나 권한 오류를 반환한다.</td></tr>
@@ -157,6 +160,8 @@ vercel deploy --prod</code></pre>
         <li>Git 저장소에 최신 커밋이 push되어 있다.</li>
         <li>Vercel 프로젝트 Root Directory가 <code>server/next-app</code>로 설정되어 있다.</li>
         <li>Framework Preset이 <code>Next.js</code>로 잡혀 있다.</li>
+        <li>Build Command가 <code>npm run build</code>로 설정되어 있다.</li>
+        <li>Output Directory가 비어 있다.</li>
         <li>Preview와 Production 환경 변수에 Supabase 값이 모두 등록되어 있다.</li>
         <li>Supabase 스키마, RLS, Storage bucket과 정책이 적용되어 있다.</li>
         <li>Preview 배포 URL에서 <code>/api/health</code>가 성공한다.</li>
