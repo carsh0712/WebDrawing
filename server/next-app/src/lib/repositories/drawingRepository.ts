@@ -234,9 +234,11 @@ class SupabaseDrawingRepository {
   constructor(private readonly supabase: SupabaseClient) {}
 
   async listDrawings() {
+    const userId = getServerUserId();
     const { data, error } = await this.supabase
       .from('drawing_projects')
       .select('*')
+      .eq('user_id', userId)
       .order('updated_at', { ascending: false });
 
     if (error) {
@@ -269,7 +271,12 @@ class SupabaseDrawingRepository {
   }
 
   async getDrawing(drawingId: string) {
-    const { data, error } = await this.supabase.from('drawing_projects').select('*').eq('id', drawingId).maybeSingle();
+    const { data, error } = await this.supabase
+      .from('drawing_projects')
+      .select('*')
+      .eq('id', drawingId)
+      .eq('user_id', getServerUserId())
+      .maybeSingle();
 
     if (error) {
       throw new Error(error.message);
@@ -291,6 +298,7 @@ class SupabaseDrawingRepository {
         updated_at: new Date().toISOString(),
       })
       .eq('id', drawingId)
+      .eq('user_id', getServerUserId())
       .select('*')
       .maybeSingle();
 
@@ -302,7 +310,11 @@ class SupabaseDrawingRepository {
   }
 
   async deleteDrawing(drawingId: string) {
-    const { error } = await this.supabase.from('drawing_projects').delete().eq('id', drawingId);
+    const { error } = await this.supabase
+      .from('drawing_projects')
+      .delete()
+      .eq('id', drawingId)
+      .eq('user_id', getServerUserId());
 
     if (error) {
       throw new Error(error.message);

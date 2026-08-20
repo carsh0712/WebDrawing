@@ -84,3 +84,10 @@ create policy "uploaded_images_insert_own"
 create policy "uploaded_images_delete_own"
   on public.uploaded_images for delete
   using (auth.uid() = user_id);
+
+grant usage on schema public to anon, authenticated, service_role;
+
+grant select, insert, update, delete on public.profiles to authenticated, service_role;
+grant select, insert, update, delete on public.drawing_projects to authenticated, service_role;
+grant select, insert, update, delete on public.uploaded_images to authenticated, service_role;
+grant select, insert, update, delete on public.share_links to authenticated, service_role;
