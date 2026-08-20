@@ -59,6 +59,7 @@ Output Directory: 비워둠
 
 - 개발: `DATABASE_PROVIDER=docker-postgres`, `DATABASE_URL=postgres://webdrawing:webdrawing_dev_password@localhost:54322/webdrawing_dev`
 - 운영: `DATABASE_PROVIDER=supabase`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
+- CORS: 여러 Vercel preview URL에서 같은 API를 호출해야 하면 `APP_ALLOWED_ORIGINS`에 쉼표로 구분해 추가한다.
 
 ## 현재 상태
 
