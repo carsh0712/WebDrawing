@@ -25,7 +25,9 @@ export async function GET(_request: Request, context: RouteContext) {
     }
 
     return jsonData(drawing);
-  } catch {
+  } catch (error) {
+    console.error('[api/drawings/:drawingId] Failed to get drawing.', error);
+
     return jsonError('DATABASE_ERROR', '작업을 조회할 수 없습니다.', 500);
   }
 }
@@ -46,7 +48,9 @@ export async function PUT(request: Request, context: RouteContext) {
     }
 
     return jsonData(drawing);
-  } catch {
+  } catch (error) {
+    console.error('[api/drawings/:drawingId] Failed to update drawing.', error);
+
     return jsonError('DATABASE_ERROR', '작업을 갱신할 수 없습니다.', 500);
   }
 }
@@ -62,7 +66,9 @@ export async function DELETE(_request: Request, context: RouteContext) {
     }
 
     return jsonData({ deleted: true });
-  } catch {
+  } catch (error) {
+    console.error('[api/drawings/:drawingId] Failed to delete drawing.', error);
+
     return jsonError('DATABASE_ERROR', '작업을 삭제할 수 없습니다.', 500);
   }
 }

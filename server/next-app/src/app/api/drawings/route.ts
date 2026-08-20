@@ -13,7 +13,9 @@ export async function GET() {
     const drawings = await createDrawingRepository().listDrawings();
 
     return jsonData(drawings);
-  } catch {
+  } catch (error) {
+    console.error('[api/drawings] Failed to list drawings.', error);
+
     return jsonError('DATABASE_ERROR', '작업 목록을 조회할 수 없습니다.', 500);
   }
 }
@@ -29,7 +31,9 @@ export async function POST(request: Request) {
     const drawing = await createDrawingRepository().createDrawing(body);
 
     return jsonData(drawing, { status: 201 });
-  } catch {
+  } catch (error) {
+    console.error('[api/drawings] Failed to create drawing.', error);
+
     return jsonError('DATABASE_ERROR', '작업을 저장할 수 없습니다.', 500);
   }
 }
