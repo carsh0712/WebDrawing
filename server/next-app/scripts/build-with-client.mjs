@@ -43,7 +43,10 @@ if (!existsSync(clientDir)) {
 
 if (isVercelBuild || !existsSync(clientNodeModulesDir)) {
   console.log('[build] Installing client dependencies...');
-  await run('npm', ['ci'], clientDir);
+  await run('npm', ['ci', '--include=dev'], clientDir, {
+    NODE_ENV: 'development',
+    npm_config_production: 'false',
+  });
 } else {
   console.log('[build] Using existing client dependencies.');
 }

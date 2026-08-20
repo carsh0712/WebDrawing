@@ -46,6 +46,8 @@ Output Directory: 비워둠
 
 Vercel 환경 변수에는 `VITE_API_BASE_URL`을 등록하지 않는다. Production/Preview 클라이언트는 현재 접속한 배포 도메인의 `/api`를 상대 경로로 호출한다. Preview URL은 배포마다 바뀌므로 특정 preview 주소를 API base URL로 고정하지 않는다.
 
+배포 후 <code>/</code>가 정적 HTML을 바로 반환하고 <code>/api/health</code>가 Vercel <code>NOT_FOUND</code>를 반환하면, Vercel이 Next.js 앱이 아니라 <code>public</code> 폴더를 정적 결과물로 배포한 상태다. 이 경우 Output Directory에 남아 있는 <code>public</code> 값을 지우고 다시 배포한다.
+
 이 폴더의 `npm run build`는 다음 순서로 동작한다.
 
 1. `../../client` 의존성을 `npm ci`로 설치한다.
