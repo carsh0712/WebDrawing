@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebDrawingCanvas R&amp;D - Supabase</title>
+  <style>
+    body { margin: 0; background: #f6f7f9; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.65; }
+    main { width: min(1080px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    a { color: #1769e0; }
+    header { margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid #d9dee7; }
+    h1, h2, h3 { margin: 0; line-height: 1.25; letter-spacing: 0; }
+    h1 { font-size: 36px; }
+    h2 { margin-top: 36px; padding-top: 28px; border-top: 1px solid #d9dee7; font-size: 24px; }
+    h3 { margin-top: 18px; font-size: 19px; }
+    p, ul, ol { margin-top: 10px; }
+    ul, ol { padding-left: 22px; }
+    li + li { margin-top: 6px; }
+    table { width: 100%; margin-top: 12px; border-collapse: collapse; background: #ffffff; border: 1px solid #d9dee7; border-radius: 8px; overflow: hidden; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid #d9dee7; text-align: left; vertical-align: top; }
+    th { width: 24%; background: #f0f3f8; }
+    tr:last-child th, tr:last-child td { border-bottom: 0; }
+    code { padding: 2px 5px; background: #eef1f5; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.94em; }
+    pre { overflow-x: auto; margin-top: 12px; padding: 14px 16px; border: 1px solid #d9dee7; border-radius: 8px; background: #111827; color: #f9fafb; }
+    pre code { padding: 0; background: transparent; color: inherit; }
+    .summary, .note { margin-top: 14px; padding: 16px 18px; border: 1px solid #d2c4ff; border-left: 4px solid #6b46c1; border-radius: 8px; background: #f0ebff; }
+    .warning { margin-top: 14px; padding: 16px 18px; border: 1px solid #ead48b; border-left: 4px solid #8a6400; border-radius: 8px; background: #fff7df; }
+    .flow { display: grid; gap: 10px; margin-top: 12px; }
+    .flow div { padding: 12px 14px; border: 1px solid #d9dee7; border-radius: 8px; background: #ffffff; }
+    @media (max-width: 720px) { main { width: min(100% - 24px, 1080px); padding-top: 28px; } h1 { font-size: 28px; } table, tbody, tr, th, td { display: block; width: 100%; } th { border-bottom: 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p><a href="../index.html">R&amp;D 목차로 돌아가기</a></p>
+      <h1>Supabase R&amp;D</h1>
+      <p class="summary">
+        Supabase는 PostgreSQL 데이터베이스, 사용자 인증, 파일 저장소, 보안 정책을 한 프로젝트 안에서 제공하는 백엔드 플랫폼이다.
+        WebDrawingCanvas에서는 Next.js 서버가 Supabase PostgreSQL과 Storage를 사용해 사용자별 그림 저장, 업로드 이미지 저장, 공유 기능의 기반을 만든다.
+      </p>
+    </header>
+
+    <section>
+      <h2>1. 초보자를 위한 한 줄 이해</h2>
+      <table>
+        <tr><th>PostgreSQL</th><td>그림 제목, 사용자 ID, 캔버스 크기, 이미지 경로 같은 구조화된 데이터를 저장하는 관계형 데이터베이스다.</td></tr>
+        <tr><th>Supabase Database</th><td>Supabase가 관리해 주는 PostgreSQL이다. 직접 서버에 DB를 설치하지 않아도 웹 대시보드에서 테이블, SQL, 백업, 접속 정보를 관리할 수 있다.</td></tr>
+        <tr><th>Supabase Auth</th><td>회원가입, 로그인, 세션, 사용자 ID를 관리한다. 그림 데이터를 특정 사용자에게 연결하려면 Auth 사용자 ID가 기준이 된다.</td></tr>
+        <tr><th>Row Level Security</th><td>같은 테이블 안에서도 사용자가 자기 데이터만 볼 수 있게 막는 PostgreSQL 보안 기능이다.</td></tr>
+        <tr><th>Supabase Storage</th><td>PNG, 썸네일, 업로드 이미지 같은 파일을 저장하는 공간이다. DB에는 파일 자체보다 파일 경로나 URL을 저장한다.</td></tr>
+        <tr><th>Next.js 서버</th><td>브라우저에서 직접 DB 비밀키를 쓰지 않도록 중간에서 API 요청을 받고, Supabase에 안전하게 접근하는 서버 역할을 한다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>2. WebDrawingCanvas에서 필요한 이유</h2>
+      <ul>
+        <li>브라우저 저장은 같은 기기에서만 유효하므로, 로그인 후 여러 기기에서 작업을 이어가려면 서버 저장이 필요하다.</li>
+        <li>갤러리의 서버 탭은 Supabase Database에서 작업 목록을 가져오는 방식으로 확장한다.</li>
+        <li>작업 원본 이미지와 썸네일은 용량이 커질 수 있으므로 Supabase Storage에 저장하고, DB에는 경로만 저장한다.</li>
+        <li>사용자별 작업물 보호를 위해 Supabase Auth 사용자 ID와 RLS 정책이 필요하다.</li>
+        <li>Vercel에 배포한 Next.js 서버는 환경 변수로 Supabase 접속 정보를 받아 운영 데이터에 접근한다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>3. 전체 연결 흐름</h2>
+      <div class="flow">
+        <div><strong>1단계.</strong> 사용자가 브라우저에서 로그인하거나 서버 갤러리를 연다.</div>
+        <div><strong>2단계.</strong> React 클라이언트가 Next.js API로 <code>GET /api/drawings</code>, <code>POST /api/drawings</code> 같은 요청을 보낸다.</div>
+        <div><strong>3단계.</strong> Next.js Route Handler가 쿠키 세션 또는 서버 환경 변수를 확인한다.</div>
+        <div><strong>4단계.</strong> Next.js 서버가 Supabase Database에서 그림 메타데이터를 조회하거나 저장한다.</div>
+        <div><strong>5단계.</strong> 이미지 파일이 필요한 경우 Next.js 서버가 Supabase Storage에 파일을 올리고, DB에는 <code>storage_path</code>를 저장한다.</div>
+        <div><strong>6단계.</strong> Supabase RLS와 Storage 정책이 사용자가 자기 데이터만 접근하도록 최종 방어선을 제공한다.</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>4. Next.js 서버에서 PostgreSQL을 쓰는 두 가지 방식</h2>
+      <table>
+        <tr>
+          <th>Supabase JS 클라이언트</th>
+          <td>
+            <code>@supabase/supabase-js</code>로 <code>supabase.from('drawing_projects').select()</code>처럼 테이블을 다룬다.
+            Auth, RLS, Storage와 함께 쓰기 쉽다. 현재 WebDrawingCanvas의 운영 저장소 계층은 이 방식을 먼저 준비했다.
+          </td>
+        </tr>
+        <tr>
+          <th>Postgres 연결 문자열</th>
+          <td>
+            <code>postgres</code>, <code>pg</code>, Prisma, Drizzle 같은 Node DB 클라이언트가 Supabase PostgreSQL 접속 문자열로 직접 SQL을 실행한다.
+            서버리스 환경에서는 Supabase 문서 기준으로 transaction pooler 연결을 우선 검토한다.
+          </td>
+        </tr>
+      </table>
+      <div class="note">
+        이 프로젝트의 초기 운영 구현은 Supabase JS 클라이언트를 사용한다. 다만 복잡한 SQL, 마이그레이션, 배치 작업이 늘어나면 Postgres 직접 연결도 함께 검토한다.
+      </div>
+    </section>
+
+    <section>
+      <h2>5. 현재 프로젝트의 서버 연결 기준</h2>
+      <table>
+        <tr><th>개발 DB</th><td><code>DATABASE_PROVIDER=docker-postgres</code>일 때 로컬 Docker PostgreSQL에 연결한다.</td></tr>
+        <tr><th>운영 DB</th><td><code>DATABASE_PROVIDER=supabase</code>일 때 Supabase 서버 클라이언트를 만든다.</td></tr>
+        <tr><th>서버 클라이언트 위치</th><td><code>server/next-app/src/lib/supabase/server.ts</code></td></tr>
+        <tr><th>저장소 계층</th><td><code>server/next-app/src/lib/repositories/drawingRepository.ts</code>에서 환경별 repository를 선택한다.</td></tr>
+        <tr><th>환경 문서</th><td><code>docs/backend/environment-strategy.md</code>에서 개발/운영 환경 변수를 관리한다.</td></tr>
+      </table>
+      <pre><code>DATABASE_PROVIDER=supabase
+NEXT_PUBLIC_SUPABASE_URL=https://프로젝트ID.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=브라우저용_공개키
+SUPABASE_SERVICE_ROLE_KEY=서버전용_비밀키</code></pre>
+      <div class="warning">
+        <code>SUPABASE_SERVICE_ROLE_KEY</code>는 RLS를 우회할 수 있는 강한 서버 전용 키다. 브라우저 코드, Vite 환경 변수, Git 저장소에 절대 넣지 않는다.
+      </div>
+    </section>
+
+    <section>
+      <h2>6. Supabase JS 클라이언트 사용 예시</h2>
+      <p>Next.js Route Handler나 서버 전용 repository에서 다음 흐름으로 사용한다.</p>
+      <pre><code>import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  },
+);
+
+const { data, error } = await supabase
+  .from('drawing_projects')
+  .select('*')
+  .order('updated_at', { ascending: false });
+
+if (error) {
+  throw new Error(error.message);
+}</code></pre>
+      <p>
+        이 방식은 초기에 구현하기 쉽지만, service role 키를 쓰는 서버 코드는 반드시 사용자 ID 조건을 직접 붙이거나 Auth 세션 검증을 먼저 해야 한다.
+      </p>
+    </section>
+
+    <section>
+      <h2>7. Postgres 직접 연결 예시</h2>
+      <p>Supabase PostgreSQL은 일반 PostgreSQL이므로 Node 서버에서 SQL 클라이언트로도 연결할 수 있다.</p>
+      <pre><code>import postgres from 'postgres';
+
+const sql = postgres(process.env.DATABASE_URL!);
+
+const drawings = await sql`
+  select id, title, canvas_width, canvas_height, updated_at
+  from public.drawing_projects
+  where user_id = ${userId}
+  order by updated_at desc
+`;</code></pre>
+      <table>
+        <tr><th>Direct connection</th><td>마이그레이션, 백업, 긴 연결을 유지하는 서버에 적합하다.</td></tr>
+        <tr><th>Session pooler</th><td>IPv4 환경의 지속 서버 연결 대안으로 검토한다.</td></tr>
+        <tr><th>Transaction pooler</th><td>Vercel 같은 서버리스 실행 환경처럼 요청마다 연결이 짧게 생기는 곳에 적합하다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>8. 인증과 RLS가 필요한 이유</h2>
+      <p>그림 저장 테이블은 모든 사용자의 그림이 함께 들어간다. 따라서 API와 DB 양쪽에서 사용자 기준을 지켜야 한다.</p>
+      <pre><code>alter table public.drawing_projects enable row level security;
+
+create policy "Users can view own drawings"
+on public.drawing_projects
+for select
+using (auth.uid() = user_id);
+
+create policy "Users can create own drawings"
+on public.drawing_projects
+for insert
+with check (auth.uid() = user_id);</code></pre>
+      <ul>
+        <li><code>auth.uid()</code>는 Supabase Auth로 로그인한 현재 사용자 ID를 의미한다.</li>
+        <li><code>user_id</code> 컬럼은 작업물 소유자 ID다.</li>
+        <li>정책은 “현재 사용자 ID와 작업물 소유자 ID가 같을 때만 허용한다”는 규칙이다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>9. Storage 연결 기준</h2>
+      <ul>
+        <li>원본 PNG, 썸네일, 업로드 이미지는 DB에 직접 넣지 않고 Storage bucket에 저장한다.</li>
+        <li>운영 초기에는 하나의 <code>drawing-assets</code> bucket을 만들고 그 안에서 폴더를 나누는 방식을 권장한다.</li>
+        <li>파일 경로는 <code>{userId}/{drawingId}/thumbnail.png</code>처럼 사용자 ID를 앞에 둔다.</li>
+        <li>DB에는 <code>image_path</code>, <code>thumbnail_path</code>, <code>storage_path</code> 같은 경로만 저장한다.</li>
+        <li>Storage 정책도 RLS처럼 사용자가 자기 폴더의 파일만 읽고 쓰도록 제한한다.</li>
+      </ul>
+
+      <h3>9.1 bucket 생성 순서</h3>
+      <ol>
+        <li>Supabase Dashboard에서 프로젝트를 연다.</li>
+        <li>왼쪽 메뉴에서 <strong>Storage</strong>를 선택한다.</li>
+        <li><strong>New bucket</strong> 또는 <strong>Create bucket</strong>을 누른다.</li>
+        <li>Bucket name에 <code>drawing-assets</code>를 입력한다.</li>
+        <li><strong>Public bucket</strong>은 끄고 private bucket으로 만든다.</li>
+        <li><strong>Restrict file size</strong>를 켜고 초기 최대 파일 크기를 정한다.</li>
+        <li><strong>Restrict MIME types</strong>를 켜고 이미지 MIME type만 허용한다.</li>
+        <li>bucket을 생성한 뒤 Storage 정책에서 사용자별 접근 규칙을 추가한다.</li>
+        <li>Next.js 서버 저장 API에서 파일을 업로드하고, 반환된 경로를 DB에 저장한다.</li>
+      </ol>
+
+      <h3>9.2 bucket 생성 시 선택값</h3>
+      <table>
+        <tr><th>Bucket name</th><td><code>drawing-assets</code>. 원본 캔버스, 썸네일, 업로드 이미지를 한 bucket 안에서 폴더로 구분한다.</td></tr>
+        <tr><th>Public bucket</th><td><strong>비활성화</strong>. 기본은 private bucket으로 만든다. 사용자 그림은 개인 작업물이므로 URL만 알면 누구나 볼 수 있는 public bucket에 두지 않는다.</td></tr>
+        <tr><th>Restrict file size</th><td><strong>활성화</strong>. 초기값은 10MB를 권장한다. 큰 캔버스 원본을 허용해야 하면 20MB까지 늘릴 수 있지만, MVP에서는 먼저 작게 제한한다.</td></tr>
+        <tr><th>Restrict MIME types</th><td><strong>활성화</strong>. <code>image/png</code>, <code>image/jpeg</code>, <code>image/webp</code>를 허용한다.</td></tr>
+        <tr><th>Allowed MIME types</th><td><code>image/png</code>, <code>image/jpeg</code>, <code>image/webp</code>. JPG와 JPEG 파일은 보통 MIME type이 <code>image/jpeg</code>로 들어온다.</td></tr>
+        <tr><th>File path rule</th><td><code>users/{userId}/drawings/{drawingId}/original.png</code>, <code>users/{userId}/drawings/{drawingId}/thumbnail.png</code>, <code>users/{userId}/uploads/{uploadId}.png</code></td></tr>
+      </table>
+
+      <h3>9.3 private bucket을 권장하는 이유</h3>
+      <ul>
+        <li>사용자 그림과 업로드 이미지는 기본적으로 개인 데이터다.</li>
+        <li>public bucket은 파일 URL을 아는 사람이 인증 없이 접근할 수 있으므로, 비공개 작업물과 맞지 않는다.</li>
+        <li>private bucket은 Next.js 서버 또는 Supabase Auth 세션을 통해 권한을 확인한 뒤 파일을 보여줄 수 있다.</li>
+        <li>공유 링크 기능이 필요하면 public bucket으로 전환하지 말고, 공유 토큰을 검증한 뒤 signed URL을 발급하는 방식을 우선 검토한다.</li>
+      </ul>
+
+      <h3>9.4 public bucket을 쓸 수 있는 경우</h3>
+      <p>
+        public bucket은 공개 갤러리처럼 누구나 봐도 되는 파일에만 사용한다. 예를 들어 사용자가 명시적으로 공개한 썸네일만 따로 보여주는 기능이 생긴다면,
+        <code>public-thumbnails</code> 같은 별도 bucket을 만들 수 있다. 그러나 MVP와 10-12 단계에서는 <code>drawing-assets</code> private bucket 하나로 시작한다.
+      </p>
+
+      <h3>9.5 Next.js 서버에서 파일 접근 방식</h3>
+      <ol>
+        <li>클라이언트가 저장 요청을 Next.js API로 보낸다.</li>
+        <li>Next.js API가 로그인 사용자를 확인한다.</li>
+        <li>Next.js API가 Supabase Storage private bucket에 파일을 업로드한다.</li>
+        <li>DB에는 공개 URL이 아니라 Storage path를 저장한다.</li>
+        <li>파일을 다시 볼 때는 권한을 확인한 뒤 signed URL을 만들거나 서버 API가 파일을 중계한다.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>10. 10-12 진행 전 체크리스트</h2>
+      <ol>
+        <li>Supabase 프로젝트를 생성한다.</li>
+        <li><code>docs/backend/supabase-schema.sql</code>을 Supabase SQL Editor에 적용한다.</li>
+        <li><code>drawing-assets</code> Storage bucket을 private으로 만든다.</li>
+        <li>bucket에서 파일 크기 제한과 MIME type 제한을 켠다.</li>
+        <li>Auth 로그인 방식 이메일/비밀번호 또는 OAuth 중 MVP 기준을 결정한다.</li>
+        <li>Vercel 환경 변수에 Supabase URL, anon key, service role key를 등록한다.</li>
+        <li>Next.js API가 요청 쿠키에서 로그인 사용자를 읽을 수 있도록 <code>@supabase/ssr</code> 도입을 검토한다.</li>
+        <li>service role 키를 계속 쓸 API는 서버에서 사용자 ID 조건을 반드시 강제한다.</li>
+        <li>RLS와 Storage 정책을 켠 뒤 서버 갤러리, 저장, 불러오기, 삭제가 사용자별로 분리되는지 확인한다.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>11. WebDrawingCanvas 적용 방침</h2>
+      <table>
+        <tr><th>단기</th><td>현재 repository 구조를 유지하며 서버 저장 목록과 저장 API가 Supabase 테이블을 사용할 수 있게 검증한다.</td></tr>
+        <tr><th>10-12</th><td>Supabase Auth를 붙여 <code>APP_SERVICE_USER_ID</code> 임시 기준을 로그인 사용자 기준으로 교체한다.</td></tr>
+        <tr><th>10-13</th><td>Vercel Preview와 Production에서 Supabase 환경 변수가 정확히 들어가는지 확인한다.</td></tr>
+        <tr><th>10-14</th><td>RLS, Storage 정책, 서버 전용 키 노출 여부, 사용자별 데이터 분리 테스트를 완료한다.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>12. 참고 자료</h2>
+      <ul>
+        <li><a href="https://supabase.com/docs/guides/database/connecting-to-postgres">Supabase Docs - Connect to your database</a></li>
+        <li><a href="https://supabase.com/docs/guides/database/postgres-js">Supabase Docs - Postgres.js</a></li>
+        <li><a href="https://supabase.com/docs/guides/auth/server-side">Supabase Docs - Server-Side Auth</a></li>
+        <li><a href="https://supabase.com/docs/guides/getting-started/tutorials/with-nextjs">Supabase Docs - Next.js tutorial</a></li>
+        <li><a href="https://supabase.com/docs/guides/database/postgres/row-level-security">Supabase Docs - Row Level Security</a></li>
+        <li><a href="https://supabase.com/docs/guides/storage/quickstart">Supabase Docs - Storage Quickstart</a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebDrawingCanvas R&amp;D</title>
+  <style>
+    body { margin: 0; background: #f6f7f9; color: #1f2937; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.65; }
+    main { width: min(1040px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    a { color: #1769e0; }
+    header { margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid #d9dee7; }
+    h1, h2, p { margin: 0; letter-spacing: 0; }
+    h1 { font-size: 36px; line-height: 1.2; }
+    h2 { margin-top: 34px; padding-top: 26px; border-top: 1px solid #d9dee7; font-size: 24px; }
+    p { margin-top: 10px; color: #667085; }
+    .summary { margin-top: 14px; padding: 16px 18px; border: 1px solid #d2c4ff; border-left: 4px solid #6b46c1; border-radius: 8px; background: #f0ebff; color: #1f2937; }
+    .doc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; }
+    .doc-card { display: flex; min-height: 154px; flex-direction: column; justify-content: space-between; padding: 20px; border: 1px solid #d9dee7; border-radius: 8px; background: #ffffff; color: inherit; text-decoration: none; transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease; }
+    .doc-card:hover, .doc-card:focus-visible { transform: translateY(-2px); border-color: #d2c4ff; box-shadow: 0 14px 32px rgba(31, 41, 55, 0.1); outline: none; }
+    .doc-title { display: block; color: #1f2937; font-size: 21px; font-weight: 800; line-height: 1.25; }
+    .doc-desc { display: block; margin-top: 10px; color: #667085; }
+    .doc-status { display: inline-flex; width: fit-content; margin-top: 18px; padding: 4px 10px; border: 1px solid #d2c4ff; border-radius: 999px; background: #f0ebff; color: #6b46c1; font-size: 13px; font-weight: 700; }
+    @media (max-width: 720px) { main { width: min(100% - 24px, 1040px); padding-top: 28px; } h1 { font-size: 28px; } .doc-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p><a href="../index.html">문서 홈으로 돌아가기</a></p>
+      <h1>WebDrawingCanvas R&amp;D</h1>
+      <p class="summary">
+        이 문서는 WebDrawingCanvas 확장 개발에 필요한 기술 조사 내용을 관리한다. 초보자도 흐름을 이해할 수 있도록 개념, 선택 이유, 적용 방법, 주의점을 함께 정리한다.
+      </p>
+    </header>
+
+    <section>
+      <h2>기술 조사 항목</h2>
+      <div class="doc-grid">
+        <a class="doc-card" href="./supabase/index.html">
+          <span>
+            <span class="doc-title">Supabase</span>
+            <span class="doc-desc">Next.js 서버에서 Supabase PostgreSQL, Auth, Storage를 연결해 서버 저장과 사용자별 데이터 권한을 구현하는 기준을 정리한다.</span>
+          </span>
+          <span class="doc-status">작성 완료</span>
+        </a>
+        <a class="doc-card" href="./vercel-nextjs/index.html">
+          <span>
+            <span class="doc-title">Vercel + Next.js</span>
+            <span class="doc-desc">Next.js 백엔드 프로젝트를 Vercel에 연결하고 Preview/Production 배포, 환경 변수, Supabase 연결을 검증하는 기준을 정리한다.</span>
+          </span>
+          <span class="doc-status">작성 완료</span>
+        </a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
