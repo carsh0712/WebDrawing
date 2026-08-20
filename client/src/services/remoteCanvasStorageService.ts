@@ -18,10 +18,10 @@ interface RemoteDrawingDetail extends RemoteDrawingSummary {
   projectData: Record<string, unknown>;
 }
 
-const apiBaseUrl = (
-  import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.DEV ? 'http://localhost:5174' : '')
-).replace(/\/$/, '');
+const apiBaseUrl = (import.meta.env.DEV ? import.meta.env.VITE_API_BASE_URL || 'http://localhost:5174' : '').replace(
+  /\/$/,
+  '',
+);
 
 const requestJson = async <TData>(path: string, init?: RequestInit) => {
   const response = await fetch(`${apiBaseUrl}${path}`, {

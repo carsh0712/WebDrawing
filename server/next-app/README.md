@@ -44,6 +44,8 @@ Build Command: npm run build
 Output Directory: 비워둠
 ```
 
+Vercel 환경 변수에는 `VITE_API_BASE_URL`을 등록하지 않는다. Production/Preview 클라이언트는 현재 접속한 배포 도메인의 `/api`를 상대 경로로 호출한다. Preview URL은 배포마다 바뀌므로 특정 preview 주소를 API base URL로 고정하지 않는다.
+
 이 폴더의 `npm run build`는 다음 순서로 동작한다.
 
 1. `../../client` 의존성을 `npm ci`로 설치한다.

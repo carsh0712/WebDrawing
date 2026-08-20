@@ -14,13 +14,14 @@ const defaultAllowedOrigins = new Set([
 ]);
 
 const allowedOrigins = new Set([...defaultAllowedOrigins, ...configuredAllowedOrigins]);
+const vercelPreviewOriginPattern = /^https:\/\/web-drawing(?:-[a-z0-9-]+)?-carsh0712-gmailcoms-projects\.vercel\.app$/;
 
 const isAllowedOrigin = (origin: string | null) => {
   if (!origin) {
     return false;
   }
 
-  return allowedOrigins.has(origin);
+  return allowedOrigins.has(origin) || vercelPreviewOriginPattern.test(origin);
 };
 
 const applyCorsHeaders = (response: NextResponse, request: NextRequest) => {
