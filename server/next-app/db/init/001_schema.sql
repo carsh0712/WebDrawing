@@ -100,6 +100,58 @@ create policy "uploaded_images_delete_own"
   on public.uploaded_images for delete
   using (auth.uid() = user_id);
 
+create policy "share_links_select_project_owner"
+  on public.share_links for select
+  using (
+    exists (
+      select 1
+      from public.drawing_projects
+      where drawing_projects.id = share_links.project_id
+        and drawing_projects.user_id = auth.uid()
+    )
+  );
+
+create policy "share_links_insert_project_owner"
+  on public.share_links for insert
+  with check (
+    exists (
+      select 1
+      from public.drawing_projects
+      where drawing_projects.id = share_links.project_id
+        and drawing_projects.user_id = auth.uid()
+    )
+  );
+
+create policy "share_links_update_project_owner"
+  on public.share_links for update
+  using (
+    exists (
+      select 1
+      from public.drawing_projects
+      where drawing_projects.id = share_links.project_id
+        and drawing_projects.user_id = auth.uid()
+    )
+  )
+  with check (
+    exists (
+      select 1
+      from public.drawing_projects
+      where drawing_projects.id = share_links.project_id
+        and drawing_projects.user_id = auth.uid()
+    )
+  );
+
+create policy "share_links_delete_project_owner"
+  on public.share_links for delete
+  using (
+    exists (
+      select 1
+      from public.drawing_projects
+      where drawing_projects.id = share_links.project_id
+        and drawing_projects.user_id = auth.uid()
+    )
+  );
+
 grant usage on schema public to anon, authenticated, service_role;
 
 grant select, insert, update, delete on public.profiles to authenticated, service_role;

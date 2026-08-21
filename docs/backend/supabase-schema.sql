@@ -85,9 +85,97 @@ create policy "uploaded_images_delete_own"
   on public.uploaded_images for delete
   using (auth.uid() = user_id);
 
+create policy "share_links_select_project_owner"
+  on public.share_links for select
+  using (
+    exists (
+      select 1
+      from public.drawing_projects
+      where drawing_projects.id = share_links.project_id
+        and drawing_projects.user_id = auth.uid()
+    )
+  );
+
+create policy "share_links_insert_project_owner"
+  on public.share_links for insert
+  with check (
+    exists (
+      select 1
+      from public.drawing_projects
+      where drawing_projects.id = share_links.project_id
+        and drawing_projects.user_id = auth.uid()
+    )
+  );
+
+create policy "share_links_update_project_owner"
+  on public.share_links for update
+  using (
+    exists (
+      select 1
+      from public.drawing_projects
+      where drawing_projects.id = share_links.project_id
+        and drawing_projects.user_id = auth.uid()
+    )
+  )
+  with check (
+    exists (
+      select 1
+      from public.drawing_projects
+      where drawing_projects.id = share_links.project_id
+        and drawing_projects.user_id = auth.uid()
+    )
+  );
+
+create policy "share_links_delete_project_owner"
+  on public.share_links for delete
+  using (
+    exists (
+      select 1
+      from public.drawing_projects
+      where drawing_projects.id = share_links.project_id
+        and drawing_projects.user_id = auth.uid()
+    )
+  );
+
 grant usage on schema public to anon, authenticated, service_role;
 
 grant select, insert, update, delete on public.profiles to authenticated, service_role;
 grant select, insert, update, delete on public.drawing_projects to authenticated, service_role;
 grant select, insert, update, delete on public.uploaded_images to authenticated, service_role;
 grant select, insert, update, delete on public.share_links to authenticated, service_role;
+
+insert into storage.buckets (id, name, public)
+values ('webdrawing-uploads', 'webdrawing-uploads', false)
+on conflict (id) do nothing;
+
+create policy "webdrawing_uploads_select_own_folder"
+  on storage.objects for select
+  using (
+    bucket_id = 'webdrawing-uploads'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+create policy "webdrawing_uploads_insert_own_folder"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'webdrawing-uploads'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+create policy "webdrawing_uploads_update_own_folder"
+  on storage.objects for update
+  using (
+    bucket_id = 'webdrawing-uploads'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  )
+  with check (
+    bucket_id = 'webdrawing-uploads'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );
+
+create policy "webdrawing_uploads_delete_own_folder"
+  on storage.objects for delete
+  using (
+    bucket_id = 'webdrawing-uploads'
+    and (storage.foldername(name))[1] = auth.uid()::text
+  );

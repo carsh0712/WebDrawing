@@ -15,9 +15,9 @@
       <p><a href="../index.html">개발 계획서로 돌아가기</a></p>
       <h1>10단계. Next.js 백엔드, Supabase, Vercel 확장</h1>
       <p class="summary">
-        <span class="badge pending">진행 중</span>
+        <span class="badge done">완료</span>
         기존 기타 단계의 Vercel 배포, Supabase DB/Storage 연결, 인증, 서버 저장 확장을 10단계 세부 계획으로 통합한다.
-        현재는 프론트엔드 원격 저장 연결까지 완료되었고, 운영 인증/배포와 보안 검증은 대기 중이다.
+        현재는 Supabase Auth 연결, Vercel 배포 검증, 보안 및 권한 검증까지 완료했다.
       </p>
       <p class="note">
         Vercel 배포, 클라이언트 라우팅, CORS, Supabase 권한, 서비스 사용자 설정 중 발생한 실제 오류와 해결 과정은
@@ -60,9 +60,9 @@
         <tr><td><span class="badge done">완료</span></td><td>10-9. 작업물 API 실제 구현</td><td>작업 목록 조회, 단일 작업 조회, 저장, 덮어쓰기, 삭제 API를 실제 DB 읽기/쓰기 로직으로 연결했다.</td></tr>
         <tr><td><span class="badge done">완료</span></td><td>10-10. 업로드 API 실제 구현</td><td>개발 환경에서 업로드 이미지 메타데이터를 DB에 저장하도록 구현했다. 운영 Supabase Storage 실제 파일 저장은 10-12 이후 인증/권한과 함께 확장한다.</td></tr>
         <tr><td><span class="badge done">완료</span></td><td>10-11. 프론트엔드 원격 저장 연결</td><td><code>client/src/services/remoteCanvasStorageService.ts</code>를 추가하고, 저장 패널에서 브라우저 저장과 서버 저장을 선택할 수 있게 했다.</td></tr>
-        <tr><td><span class="badge">대기</span></td><td>10-12. Supabase Auth 연결</td><td>로그인 사용자 기준으로 자신의 작업물과 업로드 이미지만 조회되도록 인증 세션 검증과 RLS 정책을 연결한다.</td></tr>
-        <tr><td><span class="badge">대기</span></td><td>10-13. Vercel 배포 검증</td><td>Preview와 Production 환경에서 환경 변수, API 동작, Supabase 연결, Storage 접근 권한을 확인한다.</td></tr>
-        <tr><td><span class="badge">대기</span></td><td>10-14. 보안 및 권한 검증</td><td>서비스 롤 키 노출 여부, RLS, Storage 정책, 공유 링크 권한, 공개/비공개 접근 정책을 점검한다.</td></tr>
+        <tr><td><span class="badge done">완료</span></td><td>10-12. Supabase Auth 연결</td><td>로그인 사용자 기준으로 자신의 작업물과 업로드 이미지만 조회되도록 인증 세션 검증과 RLS 정책을 연결했다.</td></tr>
+        <tr><td><span class="badge done">완료</span></td><td>10-13. Vercel 배포 검증</td><td>Preview와 Production 환경에서 환경 변수, API 동작, Supabase 연결, Storage 접근 권한을 확인했다.</td></tr>
+        <tr><td><span class="badge done">완료</span></td><td>10-14. 보안 및 권한 검증</td><td>서비스 롤 키 노출 여부, RLS, Storage 정책, 공유 링크 권한, 공개/비공개 접근 정책을 점검하고 서버 요청자 인증과 사용자별 접근 제한을 보강했다.</td></tr>
       </table>
     </section>
 
@@ -71,8 +71,8 @@
       <table>
         <tr><th>10-1 ~ 10-7</th><td><span class="badge done">완료</span> 구조, 문서, 개발 DB, 스키마 준비 단계다.</td></tr>
         <tr><th>10-8 ~ 10-10</th><td><span class="badge done">완료</span> 서버 저장소 계층과 핵심 API 실제 구현 단계다.</td></tr>
-        <tr><th>10-11</th><td><span class="badge done">완료</span> 프론트엔드가 원격 저장 API를 선택적으로 호출하게 만드는 연결 단계다.</td></tr>
-        <tr><th>10-12 ~ 10-14</th><td><span class="badge pending">진행 예정</span> 운영 인증, Vercel 배포, 보안/권한 검증 단계다.</td></tr>
+        <tr><th>10-11 ~ 10-13</th><td><span class="badge done">완료</span> 프론트엔드 원격 저장 연결, 운영 인증, Vercel 배포 검증 단계다.</td></tr>
+        <tr><th>10-14</th><td><span class="badge done">완료</span> 보안/권한 검증 단계다.</td></tr>
       </table>
     </section>
 
@@ -138,6 +138,18 @@
         <li>Vercel Preview와 Production 환경에서 환경 변수, DB 연결, Storage 접근 권한이 검증된다.</li>
         <li>클라이언트와 서버 코드 경계가 유지되고, 서버 전용 키가 브라우저 번들에 노출되지 않는다.</li>
       </ul>
+    </section>
+
+    <section>
+      <h2>7. 10-14 보안 검증 결과</h2>
+      <table>
+        <tr><th>서버 전용 키</th><td><code>SUPABASE_SERVICE_ROLE_KEY</code>는 서버 토큰 검증에만 사용하고, 사용자 데이터 접근은 Bearer 토큰 기반 Supabase 클라이언트로 수행하도록 보강했다.</td></tr>
+        <tr><th>요청자 인증</th><td>운영 Supabase 모드에서는 <code>Authorization: Bearer</code> 토큰이 없거나 유효하지 않으면 API가 <code>401</code>을 반환한다.</td></tr>
+        <tr><th>RLS</th><td>작업물과 업로드 이미지는 요청 사용자 ID로 필터링하고, Supabase 사용자 클라이언트로 RLS 정책을 통과해야 접근된다.</td></tr>
+        <tr><th>Storage 정책</th><td><code>webdrawing-uploads</code> 비공개 버킷과 사용자 ID 폴더 기준 select/insert/update/delete 정책 초안을 <code>docs/backend/supabase-schema.sql</code>에 추가했다.</td></tr>
+        <tr><th>공유 링크</th><td><code>share_links</code>는 연결된 작업물 소유자만 조회, 생성, 수정, 삭제할 수 있도록 정책을 추가했다.</td></tr>
+        <tr><th>CORS</th><td>API 응답 유틸의 전체 허용 Origin을 제거하고, 미들웨어의 허용 Origin 목록 기준으로 응답하도록 정리했다.</td></tr>
+      </table>
     </section>
   </main>
 </body>

@@ -1,15 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getPostgresPool } from '@/lib/database/postgres';
 import { runtimeEnvironment } from '@/lib/runtime/environment';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseUserClient } from '@/lib/supabase/server';
 import type { DrawingDetailDto, DrawingSummaryDto, SaveDrawingRequestDto } from '@/types/drawing';
 
 const developmentUser = {
   email: 'developer@webdrawing.local',
   id: '00000000-0000-4000-8000-000000000001',
 };
-
-const getServerUserId = () => process.env.APP_SERVICE_USER_ID || developmentUser.id;
 
 interface DrawingProjectRow {
   canvas_height: number;
@@ -93,6 +91,8 @@ const validateCanvasSize = (input: SaveDrawingRequestDto) => {
 };
 
 class PostgresDrawingRepository {
+  constructor(private readonly userId = developmentUser.id) {}
+
   async listDrawings() {
     const userId = await ensureDevelopmentUser();
     const result = await getPostgresPool().query<DrawingProjectRow>(
@@ -231,14 +231,16 @@ class PostgresDrawingRepository {
 }
 
 class SupabaseDrawingRepository {
-  constructor(private readonly supabase: SupabaseClient) {}
+  constructor(
+    private readonly supabase: SupabaseClient,
+    private readonly userId: string,
+  ) {}
 
   async listDrawings() {
-    const userId = getServerUserId();
     const { data, error } = await this.supabase
       .from('drawing_projects')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', this.userId)
       .order('updated_at', { ascending: false });
 
     if (error) {
@@ -258,7 +260,7 @@ class SupabaseDrawingRepository {
         project_data: input.projectData || {},
         thumbnail_path: input.thumbnailDataUrl,
         title: input.name.trim() || '제목 없는 작업',
-        user_id: getServerUserId(),
+        user_id: this.userId,
       })
       .select('*')
       .single();
@@ -275,7 +277,7 @@ class SupabaseDrawingRepository {
       .from('drawing_projects')
       .select('*')
       .eq('id', drawingId)
-      .eq('user_id', getServerUserId())
+      .eq('user_id', this.userId)
       .maybeSingle();
 
     if (error) {
@@ -298,7 +300,7 @@ class SupabaseDrawingRepository {
         updated_at: new Date().toISOString(),
       })
       .eq('id', drawingId)
-      .eq('user_id', getServerUserId())
+      .eq('user_id', this.userId)
       .select('*')
       .maybeSingle();
 
@@ -314,7 +316,7 @@ class SupabaseDrawingRepository {
       .from('drawing_projects')
       .delete()
       .eq('id', drawingId)
-      .eq('user_id', getServerUserId());
+      .eq('user_id', this.userId);
 
     if (error) {
       throw new Error(error.message);
@@ -332,7 +334,7 @@ class SupabaseDrawingRepository {
         mime_type: input.mimeType,
         project_id: input.projectId || null,
         storage_path: input.storagePath,
-        user_id: getServerUserId(),
+        user_id: this.userId,
       })
       .select('id, storage_path, file_name, mime_type, created_at')
       .single();
@@ -354,10 +356,19 @@ class SupabaseDrawingRepository {
 export const isValidSaveDrawingInput = (input: SaveDrawingRequestDto | null): input is SaveDrawingRequestDto =>
   Boolean(input?.name !== undefined && input?.imageDataUrl && input?.thumbnailDataUrl && validateCanvasSize(input));
 
-export const createDrawingRepository = () => {
+interface DrawingRepositoryContext {
+  accessToken?: string;
+  userId: string;
+}
+
+export const createDrawingRepository = (context: DrawingRepositoryContext) => {
   if (runtimeEnvironment.databaseProvider === 'supabase') {
-    return new SupabaseDrawingRepository(createSupabaseServerClient());
+    if (!context.accessToken) {
+      throw new Error('Supabase access token is required for user-scoped repository access.');
+    }
+
+    return new SupabaseDrawingRepository(createSupabaseUserClient(context.accessToken), context.userId);
   }
 
-  return new PostgresDrawingRepository();
+  return new PostgresDrawingRepository(context.userId);
 };

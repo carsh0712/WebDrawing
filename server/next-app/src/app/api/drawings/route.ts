@@ -1,4 +1,5 @@
 import { jsonData, jsonError, optionsResponse } from '@/lib/http';
+import { ApiAuthError, requireApiUser } from '@/lib/auth';
 import { createDrawingRepository, isValidSaveDrawingInput } from '@/lib/repositories/drawingRepository';
 import type { SaveDrawingRequestDto } from '@/types/drawing';
 
@@ -8,12 +9,17 @@ export function OPTIONS() {
   return optionsResponse();
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const drawings = await createDrawingRepository().listDrawings();
+    const userContext = await requireApiUser(request);
+    const drawings = await createDrawingRepository(userContext).listDrawings();
 
     return jsonData(drawings);
   } catch (error) {
+    if (error instanceof ApiAuthError) {
+      return jsonError('UNAUTHORIZED', error.message, 401);
+    }
+
     console.error('[api/drawings] Failed to list drawings.', error);
 
     return jsonError('DATABASE_ERROR', '작업 목록을 조회할 수 없습니다.', 500);
@@ -28,10 +34,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const drawing = await createDrawingRepository().createDrawing(body);
+    const userContext = await requireApiUser(request);
+    const drawing = await createDrawingRepository(userContext).createDrawing(body);
 
     return jsonData(drawing, { status: 201 });
   } catch (error) {
+    if (error instanceof ApiAuthError) {
+      return jsonError('UNAUTHORIZED', error.message, 401);
+    }
+
     console.error('[api/drawings] Failed to create drawing.', error);
 
     return jsonError('DATABASE_ERROR', '작업을 저장할 수 없습니다.', 500);
