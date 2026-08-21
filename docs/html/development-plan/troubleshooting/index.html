@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>개발 단계 트러블슈팅 - WebDrawingCanvas</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --paper: #ffffff;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #d9dee7;
+      --accent: #14835f;
+      --accent-soft: #e7f6ef;
+      --blue: #1769e0;
+      --blue-soft: #e8f1ff;
+      --warn: #8a6400;
+      --warn-soft: #fff7df;
+      --danger: #b42318;
+      --danger-soft: #fff1f0;
+      --done: #0f7a4f;
+      --done-soft: #e4f6ee;
+      --wait: #596579;
+      --wait-soft: #eef2f7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    main {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    header {
+      margin-bottom: 28px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    p {
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      font-size: 36px;
+      line-height: 1.2;
+    }
+
+    h2 {
+      margin-top: 34px;
+      padding-top: 26px;
+      border-top: 1px solid var(--line);
+      font-size: 24px;
+    }
+
+    h3 {
+      margin-top: 22px;
+      font-size: 20px;
+    }
+
+    h4 {
+      margin-top: 14px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    p,
+    ul,
+    ol {
+      margin-top: 10px;
+    }
+
+    ul,
+    ol {
+      padding-left: 22px;
+    }
+
+    li + li {
+      margin-top: 6px;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 12px;
+      border-collapse: collapse;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      width: 18%;
+      background: #f0f3f8;
+    }
+
+    tr:last-child th,
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    code {
+      padding: 2px 5px;
+      background: #eef1f5;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.94em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 12px 0 0;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #111827;
+      color: #f9fafb;
+      line-height: 1.55;
+    }
+
+    pre code {
+      padding: 0;
+      background: transparent;
+      color: inherit;
+    }
+
+    .summary,
+    .note {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border: 1px solid #b9ddcd;
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      background: var(--accent-soft);
+    }
+
+    .warning {
+      margin-top: 14px;
+      padding: 16px 18px;
+      border: 1px solid #ffd0cc;
+      border-left: 4px solid var(--danger);
+      border-radius: 8px;
+      background: var(--danger-soft);
+    }
+
+    .badge {
+      display: inline-flex;
+      width: fit-content;
+      min-height: 26px;
+      align-items: center;
+      padding: 3px 9px;
+      border: 1px solid #d2d8e3;
+      border-radius: 999px;
+      background: var(--wait-soft);
+      color: var(--wait);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .badge.done {
+      border-color: #a9dbc5;
+      background: var(--done-soft);
+      color: var(--done);
+    }
+
+    .badge.pending {
+      border-color: #ead48b;
+      background: var(--warn-soft);
+      color: var(--warn);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .issue {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+
+    .issue-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .issue-title {
+      display: grid;
+      gap: 4px;
+    }
+
+    .issue-no {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .detail-box {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+
+    .detail-box strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+
+    .checklist th {
+      width: 26%;
+    }
+
+    @media (max-width: 860px) {
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      main {
+        width: min(100% - 24px, 1120px);
+        padding-top: 28px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      table,
+      tbody,
+      tr,
+      th,
+      td {
+        display: block;
+        width: 100%;
+      }
+
+      th {
+        border-bottom: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p><a href="../index.html">개발 계획서로 돌아가기</a></p>
+      <h1>개발 단계 트러블슈팅</h1>
+      <p class="summary">
+        <span class="badge done">해결 완료</span>
+        10단계 Next.js 백엔드, Supabase, Vercel 확장 과정에서 실제로 발생한 오류를 시간 순서로 정리한다.
+        각 항목은 초보자가 같은 문제를 다시 만났을 때 원인, 이유, 해결책을 따라 확인할 수 있도록 작성한다.
+      </p>
+    </header>
+
+    <section>
+      <h2>1. 타임라인 요약</h2>
+      <table>
+        <tr>
+          <th>순서</th>
+          <th>증상</th>
+          <th>핵심 해결</th>
+        </tr>
+        <tr>
+          <th>T1</th>
+          <td>Vercel 빌드 후 <code>No Output Directory named "public"</code> 오류가 발생했다.</td>
+          <td>Vercel 프로젝트 기준을 <code>server/next-app</code>로 잡고 Output Directory를 비웠다.</td>
+        </tr>
+        <tr>
+          <th>T2</th>
+          <td>배포 URL에서 <code>/gallery</code> 직접 접속 시 404가 발생했다.</td>
+          <td>Next.js rewrites로 SPA 경로를 <code>/index.html</code>에 연결했다.</td>
+        </tr>
+        <tr>
+          <th>T3</th>
+          <td>Preview URL이 바뀔 때마다 CORS 오류가 발생했다.</td>
+          <td>운영 클라이언트는 같은 origin의 <code>/api</code>를 호출하게 하고, 서버 CORS는 Vercel preview 패턴을 허용했다.</td>
+        </tr>
+        <tr>
+          <th>T4</th>
+          <td><code>/api/health</code>가 동작하지 않고 404를 반환했다.</td>
+          <td>정적 사이트가 아니라 Next.js 앱으로 배포되도록 Root Directory, Framework, Output Directory 설정을 정리했다.</td>
+        </tr>
+        <tr>
+          <th>T5</th>
+          <td>Vercel 빌드에서 JSX 타입 오류가 대량으로 발생했다.</td>
+          <td>서버 빌드 스크립트가 클라이언트 devDependencies까지 설치한 뒤 Vite 빌드를 수행하게 수정했다.</td>
+        </tr>
+        <tr>
+          <th>T6</th>
+          <td><code>GET /api/drawings</code>가 <code>permission denied for table drawing_projects</code>로 실패했다.</td>
+          <td>Supabase 테이블에 필요한 PostgreSQL GRANT 권한을 추가했다.</td>
+        </tr>
+        <tr>
+          <th>T7</th>
+          <td><code>POST /api/drawings</code>가 외래 키 제약 조건 위반으로 실패했다.</td>
+          <td>Supabase Auth에 실제 서비스 사용자를 만들고 그 User UID를 <code>APP_SERVICE_USER_ID</code>로 사용했다.</td>
+        </tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>2. 상세 기록</h2>
+      <div class="timeline">
+        <article class="issue">
+          <div class="issue-head">
+            <div class="issue-title">
+              <span class="issue-no">T1</span>
+              <h3>Vercel Output Directory 오류</h3>
+            </div>
+            <span class="badge done">해결 완료</span>
+          </div>
+          <p>Vercel 빌드가 끝난 뒤 <code>No Output Directory named "public" found after the Build completed</code> 오류가 발생했다.</p>
+          <div class="detail-grid">
+            <div class="detail-box">
+              <strong>1. 원인</strong>
+              Vercel 프로젝트가 Next.js 앱이 아니라 정적 산출물 배포처럼 설정되어 있었고, Output Directory가 <code>public</code>로 지정되어 있었다.
+            </div>
+            <div class="detail-box">
+              <strong>2. 이유</strong>
+              저장소가 <code>client/</code>와 <code>server/next-app/</code>로 나뉜 구조라 Vercel이 어느 폴더를 앱 루트로 봐야 하는지 명확해야 한다. Next.js 배포에서는 <code>public</code>을 최종 Output Directory로 지정하지 않는다.
+            </div>
+            <div class="detail-box">
+              <strong>3. 해결책</strong>
+              Vercel 프로젝트 설정에서 Root Directory를 <code>server/next-app</code>, Framework Preset을 <code>Next.js</code>, Build Command를 <code>npm run build</code>, Output Directory를 빈 값으로 설정했다.
+            </div>
+          </div>
+          <pre><code>Root Directory: server/next-app
+Framework Preset: Next.js
+Build Command: npm run build
+Output Directory: 비워둠</code></pre>
+        </article>
+
+        <article class="issue">
+          <div class="issue-head">
+            <div class="issue-title">
+              <span class="issue-no">T2</span>
+              <h3>/gallery 직접 접속 404</h3>
+            </div>
+            <span class="badge done">해결 완료</span>
+          </div>
+          <p>처음 접속 화면을 갤러리로 바꾸고 클라이언트 라우팅을 추가한 뒤, 배포 URL의 <code>/gallery</code>에 직접 접속하면 404가 발생했다.</p>
+          <div class="detail-grid">
+            <div class="detail-box">
+              <strong>1. 원인</strong>
+              <code>/gallery</code>와 <code>/canvas</code>는 React 클라이언트 라우트인데, 브라우저에서 직접 주소를 열면 요청이 먼저 Next.js 서버와 Vercel 라우팅으로 들어갔다.
+            </div>
+            <div class="detail-box">
+              <strong>2. 이유</strong>
+              SPA 라우팅은 <code>index.html</code>이 로드된 뒤 브라우저에서 해석된다. 서버가 해당 경로를 정적 파일 또는 Next.js 페이지로 찾으면 실제 파일이 없어서 404가 된다.
+            </div>
+            <div class="detail-box">
+              <strong>3. 해결책</strong>
+              <code>server/next-app/next.config.mjs</code>에 rewrites를 추가해 <code>/gallery</code>, <code>/canvas</code> 요청을 <code>/index.html</code>로 넘겼다.
+            </div>
+          </div>
+          <pre><code>{
+  source: '/gallery',
+  destination: '/index.html'
+},
+{
+  source: '/canvas',
+  destination: '/index.html'
+}</code></pre>
+        </article>
+
+        <article class="issue">
+          <div class="issue-head">
+            <div class="issue-title">
+              <span class="issue-no">T3</span>
+              <h3>Vercel Preview URL 변경과 CORS 오류</h3>
+            </div>
+            <span class="badge done">해결 완료</span>
+          </div>
+          <p>배포가 반복되면서 <code>web-drawing-...</code> 형태의 Preview 주소가 계속 바뀌었고, 클라이언트가 다른 Preview 주소의 API를 호출하면서 CORS 오류가 발생했다.</p>
+          <div class="detail-grid">
+            <div class="detail-box">
+              <strong>1. 원인</strong>
+              Production/Preview 환경의 <code>VITE_API_BASE_URL</code>이 특정 배포 URL로 고정되어 있었다. 그래서 현재 페이지 origin과 API origin이 서로 달라졌다.
+            </div>
+            <div class="detail-box">
+              <strong>2. 이유</strong>
+              Vercel은 배포마다 고유 Preview URL을 만든다. 이전 Preview URL을 API 주소로 유지하면 새 Preview 페이지에서 이전 Preview API를 호출하게 되고, 서버가 현재 origin을 허용하지 않으면 브라우저가 요청을 차단한다.
+            </div>
+            <div class="detail-box">
+              <strong>3. 해결책</strong>
+              운영 빌드에서는 클라이언트가 항상 같은 사이트의 <code>/api</code>를 호출하게 바꿨다. 서버 middleware에는 대표 도메인과 Vercel Preview 도메인 패턴을 CORS 허용 목록으로 추가했다.
+            </div>
+          </div>
+          <pre><code>// production/preview
+fetch('/api/drawings')
+
+// local development
+VITE_API_BASE_URL=http://localhost:5174</code></pre>
+          <p class="warning">운영 Vercel 환경 변수에는 <code>VITE_API_BASE_URL</code>을 넣지 않는 것이 안전하다. 넣어야 한다면 같은 배포의 origin을 가리키는지 매번 확인해야 한다.</p>
+        </article>
+
+        <article class="issue">
+          <div class="issue-head">
+            <div class="issue-title">
+              <span class="issue-no">T4</span>
+              <h3>/api/health 404</h3>
+            </div>
+            <span class="badge done">해결 완료</span>
+          </div>
+          <p><code>/api/health</code>가 계속 404를 반환했다. 이 문제는 API 코드 자체보다 Vercel 배포 설정 문제에 가까웠다.</p>
+          <div class="detail-grid">
+            <div class="detail-box">
+              <strong>1. 원인</strong>
+              Vercel이 <code>server/next-app</code>의 Next.js API Routes를 배포하지 않고, 정적 산출물만 배포하는 흐름으로 동작했다.
+            </div>
+            <div class="detail-box">
+              <strong>2. 이유</strong>
+              <code>/api/health</code>는 Next.js 서버 라우트다. Next.js 프로젝트로 배포되지 않으면 Vercel에 해당 함수가 생성되지 않으므로 플랫폼 수준의 404가 발생한다.
+            </div>
+            <div class="detail-box">
+              <strong>3. 해결책</strong>
+              Vercel Root Directory를 <code>server/next-app</code>로 확정하고, Output Directory를 비운 뒤 재배포했다. 이후 <code>/api/health</code>가 응답하는지 먼저 확인한 다음 갤러리 API를 확인하는 순서로 점검했다.
+            </div>
+          </div>
+        </article>
+
+        <article class="issue">
+          <div class="issue-head">
+            <div class="issue-title">
+              <span class="issue-no">T5</span>
+              <h3>Vercel 빌드 중 JSX 타입 오류</h3>
+            </div>
+            <span class="badge done">해결 완료</span>
+          </div>
+          <p>Vercel 빌드에서 <code>JSX element implicitly has type 'any' because no interface 'JSX.IntrinsicElements' exists</code> 오류가 여러 컴포넌트에서 발생했다.</p>
+          <div class="detail-grid">
+            <div class="detail-box">
+              <strong>1. 원인</strong>
+              Vercel 빌드 중 <code>client/</code> 의존성을 설치할 때 React 타입 패키지 같은 devDependencies가 빠졌다.
+            </div>
+            <div class="detail-box">
+              <strong>2. 이유</strong>
+              서버 앱 기준으로 빌드하면서 내부에서 클라이언트 빌드도 수행한다. 이때 production 환경으로 <code>npm ci</code>가 실행되면 TypeScript 빌드에 필요한 <code>@types/react</code> 계열 devDependencies가 설치되지 않는다.
+            </div>
+            <div class="detail-box">
+              <strong>3. 해결책</strong>
+              <code>server/next-app/scripts/build-with-client.mjs</code>에서 클라이언트 의존성을 <code>npm ci --include=dev</code>로 설치하게 했다. 클라이언트 빌드 후 <code>client/dist</code>를 <code>server/next-app/public</code>으로 복사하고 Next.js 빌드를 실행한다.
+            </div>
+          </div>
+          <pre><code>npm ci --include=dev
+npm run build
+copy client/dist -&gt; server/next-app/public
+npm run build:next</code></pre>
+        </article>
+
+        <article class="issue">
+          <div class="issue-head">
+            <div class="issue-title">
+              <span class="issue-no">T6</span>
+              <h3>Supabase 테이블 권한 오류</h3>
+            </div>
+            <span class="badge done">해결 완료</span>
+          </div>
+          <p><code>GET /api/drawings</code> 호출이 500으로 실패했고, Vercel 로그에는 <code>permission denied for table drawing_projects</code>가 출력되었다.</p>
+          <div class="detail-grid">
+            <div class="detail-box">
+              <strong>1. 원인</strong>
+              Supabase의 <code>drawing_projects</code> 테이블에 API에서 사용하는 역할의 PostgreSQL 권한이 부여되어 있지 않았다.
+            </div>
+            <div class="detail-box">
+              <strong>2. 이유</strong>
+              RLS 정책은 행 단위 접근 조건을 정하는 기능이고, 테이블 자체에 접근할 수 있는 권한을 자동으로 부여하지 않는다. 즉, RLS가 있어도 <code>grant select</code>, <code>grant insert</code> 같은 테이블 권한이 없으면 쿼리가 실패한다.
+            </div>
+            <div class="detail-box">
+              <strong>3. 해결책</strong>
+              Supabase SQL Editor에서 public schema와 관련 테이블에 필요한 권한을 부여했다. 이후 목록 조회 API가 DB에서 작업 목록을 읽을 수 있게 되었다.
+            </div>
+          </div>
+          <pre><code>grant usage on schema public to anon, authenticated, service_role;
+
+grant select, insert, update, delete on public.profiles to authenticated, service_role;
+grant select, insert, update, delete on public.drawing_projects to authenticated, service_role;
+grant select, insert, update, delete on public.uploaded_images to authenticated, service_role;
+grant select, insert, update, delete on public.share_links to authenticated, service_role;</code></pre>
+        </article>
+
+        <article class="issue">
+          <div class="issue-head">
+            <div class="issue-title">
+              <span class="issue-no">T7</span>
+              <h3>저장 시 사용자 외래 키 제약 조건 위반</h3>
+            </div>
+            <span class="badge done">해결 완료</span>
+          </div>
+          <p><code>POST /api/drawings</code> 호출이 500으로 실패했고, 로그에는 <code>drawing_projects_user_id_fkey</code> 외래 키 제약 조건 위반이 출력되었다.</p>
+          <div class="detail-grid">
+            <div class="detail-box">
+              <strong>1. 원인</strong>
+              서버가 사용하는 <code>APP_SERVICE_USER_ID</code> 값이 <code>auth.users</code> 테이블에 실제로 존재하지 않는 UUID였다.
+            </div>
+            <div class="detail-box">
+              <strong>2. 이유</strong>
+              <code>drawing_projects.user_id</code>는 Supabase Auth의 사용자 ID를 참조한다. <code>public.profiles</code>에 같은 UUID를 넣는 것만으로는 충분하지 않고, 먼저 <code>auth.users</code>에 실제 사용자가 있어야 한다.
+            </div>
+            <div class="detail-box">
+              <strong>3. 해결책</strong>
+              Supabase Dashboard의 Authentication 메뉴에서 개발용 사용자를 생성하고, 생성된 실제 User UID를 Vercel의 <code>APP_SERVICE_USER_ID</code> 환경 변수로 등록했다. 필요하면 같은 UID로 <code>public.profiles</code> row를 추가한다.
+            </div>
+          </div>
+          <pre><code>insert into public.profiles (id, email, display_name)
+values (
+  'Supabase Auth에서 복사한 실제 User UID',
+  'developer@webdrawing.local',
+  'Developer'
+)
+on conflict (id) do update
+set
+  email = excluded.email,
+  display_name = excluded.display_name,
+  updated_at = now();</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>3. 재발 방지 체크리스트</h2>
+      <table class="checklist">
+        <tr>
+          <th>Vercel 프로젝트 설정</th>
+          <td><code>server/next-app</code>를 Root Directory로 사용하고, Output Directory는 비운다. <code>/api/health</code>가 먼저 동작하는지 확인한다.</td>
+        </tr>
+        <tr>
+          <th>클라이언트 API 주소</th>
+          <td>운영과 Preview에서는 같은 origin의 <code>/api</code>를 사용한다. 로컬 개발에서만 <code>VITE_API_BASE_URL</code>을 사용한다.</td>
+        </tr>
+        <tr>
+          <th>SPA 라우팅</th>
+          <td>새 클라이언트 경로를 추가하면 <code>next.config.mjs</code> rewrites에도 직접 접속 가능한 경로를 추가한다.</td>
+        </tr>
+        <tr>
+          <th>Supabase 권한</th>
+          <td>RLS 정책과 PostgreSQL GRANT를 모두 확인한다. 권한 오류가 나면 먼저 테이블 grant 상태를 확인한다.</td>
+        </tr>
+        <tr>
+          <th>서비스 사용자</th>
+          <td><code>APP_SERVICE_USER_ID</code>는 임의 UUID가 아니라 Supabase Authentication에 실제 존재하는 User UID를 사용한다.</td>
+        </tr>
+        <tr>
+          <th>빌드 스크립트</th>
+          <td>Vercel 빌드가 서버 앱 기준으로 실행되더라도 클라이언트 TypeScript 빌드에 필요한 devDependencies가 설치되는지 확인한다.</td>
+        </tr>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
